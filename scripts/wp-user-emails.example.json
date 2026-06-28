@@ -1,0 +1,4 @@
+{
+  "_comment": "WP slug 또는 id → V5000 import 이메일. WP_APP_USER 없을 때 admin 등 보조 계정용.",
+  "admin": ""
+}

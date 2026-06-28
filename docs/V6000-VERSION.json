@@ -1,0 +1,12 @@
+{
+  "scheme": "V6.MAJOR.MINOR.PATCH — V6000 mobile shipped release",
+  "version": "6.0.0.0",
+  "label": "V6.0.0.0",
+  "parent": "V5.0.0.20",
+  "summary": "Initial mobile-first Next.js app — shared V5000 API/DB",
+  "localPath": "D:/함께온라인/My_BLOG/nutrifarmer-v6000",
+  "devPort": 6000,
+  "www": null,
+  "abcSynced": false,
+  "updatedAt": "2026-06-28T23:00:00+09:00"
+}

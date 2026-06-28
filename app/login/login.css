@@ -1,0 +1,351 @@
+/* nutrifarmer.kr /login/ 동일 스타일 (V5000) */
+
+/* 로그인 전용 — 루트 layout 헤더/푸터 숨김 */
+body:has(.nf-auth-page-root) .nf-top-bar,
+body:has(.nf-auth-page-root) .nf-nav-bar,
+body:has(.nf-auth-page-root) .nf-footer {
+  display: none !important;
+}
+
+body:has(.nf-auth-page-root) main {
+  padding: 0;
+  min-height: 100vh;
+}
+
+.nf-auth-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  font-family: var(--font-noto, "Noto Sans KR", sans-serif);
+  background:
+    linear-gradient(135deg, rgba(45, 55, 72, 0.82) 0%, rgba(192, 86, 33, 0.55) 100%),
+    url("https://www.nutrifarmer.kr/wp-content/themes/fse-solar-power/assets/images/auth-bg.jpg") center/cover no-repeat,
+    #2d3748;
+  animation: nfAuthFade 1.2s ease;
+}
+
+@keyframes nfAuthFade {
+  from { opacity: 0; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.nf-auth-dual-shell {
+  width: 100%;
+  max-width: 28rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.nf-auth-dual-shell.is-panel-open {
+  max-width: min(56rem, 100%);
+}
+
+.nf-auth-side-panel {
+  width: 100%;
+  max-width: 28rem;
+  animation: nfAuthPanelIn 0.28s ease;
+}
+
+@keyframes nfAuthPanelIn {
+  from { opacity: 0; transform: translateX(0.75rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.nf-auth-screen-label {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.85rem;
+  padding: 0.55rem 0.85rem;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1.5px solid #d4c4b8;
+  background: #fdf8f3;
+  color: #2d3748;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.nf-auth-side-panel h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #2d3748;
+}
+
+.nf-auth-code-input {
+  letter-spacing: 0.35em;
+  text-align: center;
+  font-size: 1.25rem !important;
+  font-weight: 700;
+}
+
+.nf-auth-links--inline .nf-auth-link-btn {
+  font-size: 0.82rem;
+}
+
+@media (min-width: 768px) {
+  .nf-auth-dual-shell.is-panel-open {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+}
+
+.nf-auth-card {
+  width: 100%;
+  background: rgba(255, 252, 248, 0.94);
+  border-radius: 20px;
+  padding: 2rem 1.75rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-sizing: border-box;
+}
+
+.nf-auth-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #c05621;
+  background: #fdf8f3;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  margin-bottom: 0.65rem;
+}
+
+.nf-auth-card-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #2d3748;
+  line-height: 1.25;
+}
+
+.nf-auth-lead {
+  margin: 0 0 1.25rem;
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.nf-auth-notice {
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.nf-auth-notice--error   { background: #fff0f0; color: #b91c1c; border: 1px solid #fecaca; }
+.nf-auth-notice--success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.nf-auth-notice--info    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+.nf-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.85rem;
+}
+
+.nf-auth-field span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #444;
+}
+
+.nf-auth-field input {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.nf-auth-field input:focus {
+  outline: none;
+  border-color: #c05621;
+  box-shadow: 0 0 0 3px rgba(192, 86, 33, 0.15);
+}
+
+.nf-auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.nf-auth-submit {
+  width: 100%;
+  min-height: 2.85rem;
+  border: none;
+  border-radius: 12px;
+  background: #c05621;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.nf-auth-submit:hover:not(:disabled) { background: #a04918; }
+.nf-auth-submit:disabled { opacity: 0.7; cursor: wait; }
+
+.nf-auth-submit--link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  margin-bottom: 0.65rem;
+}
+
+.nf-auth-logged-in-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.nf-auth-logout,
+.nf-auth-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #c05621;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+.nf-auth-logout:hover,
+.nf-auth-link-btn:hover { text-decoration: underline; }
+
+.nf-auth-links {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ebe3da;
+  text-align: center;
+}
+
+.nf-auth-links a {
+  color: #666;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.nf-auth-links a:hover { color: #c05621; }
+
+.nf-auth-links--inline {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.85rem;
+  padding-top: 0;
+  border-top: none;
+}
+
+.nf-auth-links--inline a {
+  color: #c05621;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.nf-auth-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.nf-auth-hint--register a {
+  color: #c05621;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.nf-auth-id-pick {
+  border: 1px solid #e8d9cc;
+  border-radius: 12px;
+  padding: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.nf-auth-id-pick-legend {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #2d3748;
+  padding: 0 0.25rem;
+}
+
+.nf-auth-id-pick-hint {
+  margin: 0.35rem 0 0.65rem;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.nf-auth-id-pick-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.nf-auth-id-pick-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #e8d9cc;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.nf-auth-id-pick-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.nf-auth-id-pick-label strong { font-size: 0.9rem; color: #2d3748; }
+.nf-auth-id-pick-label small  { font-size: 0.78rem; color: #888; }
+
+.nf-auth-id-pick-back {
+  margin: 0.65rem 0 0;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.nfw-app--loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f2744;
+  color: #fff;
+}
+
+.nfw-loading {
+  font-size: 1rem;
+  font-weight: 600;
+}
