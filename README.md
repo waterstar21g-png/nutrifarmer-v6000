@@ -17,8 +17,8 @@ npm run dev
 
 ## Vercel 배포
 
-- **모바일 URL (목표):** https://m.nutrifarmer.kr *(DNS A 레코드 후)*
-- **즉시 접속:** https://nutrifarmer-v6000.vercel.app
+- **모바일 URL:** https://m.nutrifarmer.kr ✅
+- **백업 URL:** https://nutrifarmer-v6000.vercel.app
 - **배포 ID:** `dpl_2KcQw7Q2qFGZNYbdXqpDEtvJkQkv`
 
 ### DNS (Cloudflare 1회)

@@ -3,21 +3,15 @@
   "version": "6.0.0.2",
   "label": "V6.0.0.2",
   "parent": "V5.0.0.20",
-  "commit": "7ff6d9f",
+  "commit": "3e09040",
   "deploymentId": "dpl_2KcQw7Q2qFGZNYbdXqpDEtvJkQkv",
   "www": "https://m.nutrifarmer.kr",
   "wwwFallback": "https://nutrifarmer-v6000.vercel.app",
   "github": "https://github.com/waterstar21g-png/nutrifarmer-v6000",
-  "wwwSynced": false,
+  "wwwSynced": true,
   "abcSynced": true,
-  "summary": "m.nutrifarmer.kr Vercel domain + SITE_URL; DNS A record pending Cloudflare",
+  "summary": "m.nutrifarmer.kr live — DNS A 76.76.21.21, V6000 mobile posts OK",
   "localPath": "D:/함께온라인/My_BLOG/nutrifarmer-v6000",
   "devPort": 6000,
-  "updatedAt": "2026-06-29T03:30:00+09:00",
-  "dnsPending": {
-    "type": "A",
-    "name": "m.nutrifarmer.kr",
-    "content": "76.76.21.21",
-    "proxied": false
-  }
+  "updatedAt": "2026-06-29T04:00:00+09:00"
 }
