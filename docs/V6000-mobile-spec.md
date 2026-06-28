@@ -49,10 +49,10 @@ npm run dev
 
 ---
 
-## 5. 배포 (예정)
+## 5. 배포
 
-- Vercel 별도 프로젝트: `nutrifarmer-v6000`
-- 도메인 후보: `m.nutrifarmer.kr` 또는 `/m` 서브경로 (미정)
+- Vercel: `nutrifarmer-v6000`
+- URL: https://m.nutrifarmer.kr
 
 ---
 
@@ -64,3 +64,9 @@ npm run dev
 | `/write` 내장 | V5000 write URL 링크 |
 | 3000+ 줄 globals.css | ~300줄 mobile-first CSS |
 | max-width 없음 전폭 | max 480px 중앙 |
+
+---
+
+## 7. V5000 관계·요구사항 규칙
+
+→ [`V5000-V6000-platform-relationship.md`](V5000-V6000-platform-relationship.md)
