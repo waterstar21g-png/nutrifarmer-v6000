@@ -1,17 +1,23 @@
 {
   "scheme": "V6.MAJOR.MINOR.PATCH — V6000 mobile shipped release",
-  "version": "6.0.0.1",
-  "label": "V6.0.0.1",
+  "version": "6.0.0.2",
+  "label": "V6.0.0.2",
   "parent": "V5.0.0.20",
-  "commit": "a7f6dbb",
-  "commitFull": "a7f6dbb",
-  "deploymentId": "dpl_AUPwEGkwsLM52zXbYEP5t1DqteNW",
-  "www": "https://nutrifarmer-v6000.vercel.app",
+  "commit": "7ff6d9f",
+  "deploymentId": "dpl_2KcQw7Q2qFGZNYbdXqpDEtvJkQkv",
+  "www": "https://m.nutrifarmer.kr",
+  "wwwFallback": "https://nutrifarmer-v6000.vercel.app",
   "github": "https://github.com/waterstar21g-png/nutrifarmer-v6000",
-  "wwwSynced": true,
+  "wwwSynced": false,
   "abcSynced": true,
-  "summary": "V6000 env sync, redeploy, GitHub push — mobile posts live",
+  "summary": "m.nutrifarmer.kr Vercel domain + SITE_URL; DNS A record pending Cloudflare",
   "localPath": "D:/함께온라인/My_BLOG/nutrifarmer-v6000",
   "devPort": 6000,
-  "updatedAt": "2026-06-29T03:00:00+09:00"
+  "updatedAt": "2026-06-29T03:30:00+09:00",
+  "dnsPending": {
+    "type": "A",
+    "name": "m.nutrifarmer.kr",
+    "content": "76.76.21.21",
+    "proxied": false
+  }
 }

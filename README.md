@@ -15,27 +15,19 @@ npm run dev
 
 브라우저: http://localhost:6000
 
-## Vercel 배포 (완료)
+## Vercel 배포
 
-- **URL:** https://nutrifarmer-v6000.vercel.app
-- **프로젝트:** `nutrifarmer-front/nutrifarmer-v6000`
-- **배포 ID:** `dpl_9DNPg2Kwcg96PZpFRtJaCM9pqYU4`
+- **모바일 URL (목표):** https://m.nutrifarmer.kr *(DNS A 레코드 후)*
+- **즉시 접속:** https://nutrifarmer-v6000.vercel.app
+- **배포 ID:** `dpl_2KcQw7Q2qFGZNYbdXqpDEtvJkQkv`
 
-### ⚠️ DB 연결 (필수 1회)
+### DNS (Cloudflare 1회)
 
-V6000 Vercel 프로젝트에 **v5000과 동일한 환경 변수**를 복사해야 글이 표시됩니다.
+| 유형 | 이름 | 값 | 프록시 |
+|------|------|-----|--------|
+| A | `m` | `76.76.21.21` | DNS 전용 (회색) |
 
-Vercel 대시보드 → `nutrifarmer-v6000` → Settings → Environment Variables
-
-| 변수 | 비고 |
-|------|------|
-| `DATABASE_URL` | v5000과 동일 |
-| `AUTH_SESSION_SECRET` | v5000과 동일 (로그인 SSO) |
-| `R2_*` | 미디어 |
-| `NEXT_PUBLIC_SITE_URL` | `https://nutrifarmer-v6000.vercel.app` |
-| `NEXT_PUBLIC_V5000_WRITE_URL` | `https://www.nutrifarmer.kr/write` |
-
-복사 후 **Redeploy** 하세요.
+또는: `node scripts/add-m-subdomain-dns.mjs --apply` (토큰에 Zone.DNS Edit 필요)
 
 ## GitHub (수동)
 
