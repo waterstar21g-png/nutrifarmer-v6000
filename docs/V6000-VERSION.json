@@ -1,12 +1,20 @@
 {
   "scheme": "V6.MAJOR.MINOR.PATCH — V6000 mobile shipped release",
-  "version": "6.0.0.0",
-  "label": "V6.0.0.0",
+  "version": "6.0.0.1",
+  "label": "V6.0.0.1",
   "parent": "V5.0.0.20",
-  "summary": "Initial mobile-first Next.js app — shared V5000 API/DB",
+  "commit": "28b75bd",
+  "deploymentId": "dpl_9DNPg2Kwcg96PZpFRtJaCM9pqYU4",
+  "www": "https://nutrifarmer-v6000.vercel.app",
+  "wwwSynced": true,
+  "abcSynced": false,
+  "summary": "V6000 mobile deploy, git init, /write bridge page",
   "localPath": "D:/함께온라인/My_BLOG/nutrifarmer-v6000",
   "devPort": 6000,
-  "www": null,
-  "abcSynced": false,
-  "updatedAt": "2026-06-28T23:00:00+09:00"
+  "updatedAt": "2026-06-29T02:30:00+09:00",
+  "nextSteps": [
+    "Vercel: nutrifarmer-v6000 프로젝트에 v5000과 동일 env 복사 (DATABASE_URL 등)",
+    "GitHub: gh repo create nutrifarmer-v6000 --public --source=. --push",
+    "도메인: m.nutrifarmer.kr 연결 (선택)"
+  ]
 }
