@@ -1,72 +1,52 @@
-# V6000 Mobile Platform
+# V6000 Mobile Platform (V6.1 통합)
 
-> **생성일:** 2026-06-28  
-> **위치:** `D:/함께온라인/My_BLOG/nutrifarmer-v6000`  
-> **관계:** V5000 Native Platform과 **동일 Postgres·R2·API** 공유
-
----
-
-## 1. 목적
-
-- **V6000** = 모바일 전용 UI (375px 기준, 하단 네비, 카드형 목록)
-- **V5000** = 데스크톱·글쓰기 에디터 (기존 www 유지)
-- 글쓰기는 V5000 `/write` 링크 (모바일에서 새 탭)
+> **갱신:** 2026-06-30 — V7000 쓰기·사진 AI 통합  
+> **URL:** m.nutrifarmer.kr  
+> **버전:** V6.1.0.0
 
 ---
 
-## 2. 스택
+## 역할
+
+**단일 모바일 앱** — 읽기 + 쓰기 + 사진 AI
+
+| 기능 | 경로 |
+|------|------|
+| 홈 | `/` |
+| 카테고리 | `/categories`, `/[category]` |
+| 테마 | `/theme`, `/theme/[key]` |
+| 사진올리기 | `/upload`, `/photo`, `/done` |
+| 글쓰기 | `/write`, `/text` |
+| 계정 | `/login` |
+
+---
+
+## 하단 메뉴 (6탭)
+
+홈 · 카테고리 · 테마 · 사진올리기 · 글쓰기 · 계정
+
+---
+
+## 세션
+
+- 쿠키: `nf-v5000-session` (V5000 공유)
+- **10분 미사용** 시 재로그인 권고 (`session_idle`)
+- 활동 중 touch API로 슬라이딩 갱신
+
+---
+
+## 스택
 
 | 항목 | 값 |
 |------|-----|
-| Framework | Next.js 15 App Router |
-| Port (로컬) | **6000** (`npm run dev`) |
-| API | `/api/v5000/*` (V5000과 동일) |
-| DB / R2 | V5000 env 공유 |
-| 세션 쿠키 | `nf-v5000-session` (동일 secret 시 SSO 가능) |
+| Port | **6000** |
+| API / DB / R2 | V5000 공유 |
+| Vision AI | `/api/v5000/ai/vision-draft` |
 
 ---
 
-## 3. 화면
+## 관계
 
-| 경로 | 설명 |
-|------|------|
-| `/` | 모바일 홈 — 히어로 + 카테고리 칩 + 최신 글 카드 |
-| `/[category]` | 카테고리 글 목록 |
-| `/[category]/[slug]?pid=` | 단일글 (배너 + 대표이미지 + 본문) |
-| `/login` | V5000 auth 공유 로그인 |
-
----
-
-## 4. 로컬 실행
-
-```powershell
-cd "D:/함께온라인/My_BLOG/nutrifarmer-v6000"
-copy ..\nutrifarmer-v5000\.env.local .env.local
-npm install
-npm run dev
-# http://localhost:6000
-```
-
----
-
-## 5. 배포
-
-- Vercel: `nutrifarmer-v6000`
-- URL: https://m.nutrifarmer.kr
-
----
-
-## 6. V5000 대비 차이
-
-| V5000 | V6000 |
-|-------|-------|
-| 2컬럼·히어로·8칸 그리드 | 1컬럼 카드 리스트 |
-| `/write` 내장 | V5000 write URL 링크 |
-| 3000+ 줄 globals.css | ~300줄 mobile-first CSS |
-| max-width 없음 전폭 | max 480px 중앙 |
-
----
-
-## 7. V5000 관계·요구사항 규칙
-
-→ [`V5000-V6000-platform-relationship.md`](V5000-V6000-platform-relationship.md)
+- V5000: 데스크톱 (www)
+- V7000: 쓰기 MVP → **본 repo(V6.1)로 흡수**
+- V6000 repo = **통합 모바일 앱**

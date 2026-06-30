@@ -65,6 +65,7 @@ export const LOGIN_ERRORS: Record<string, string> = {
   mail_failed: '메일 발송에 실패했습니다. 잠시 후 다시 시도하거나 관리자에게 문의해 주세요.',
   rate_limited: '요청이 너무 많습니다. 15분 후 다시 시도해 주세요.',
   session_expired: '로그인 세션이 만료되었습니다. 다시 로그인해 주세요.',
+  session_idle: '10분 이상 미사용으로 로그인이 만료되었습니다. 다시 로그인해 주세요.',
   database_unconfigured: '데이터베이스가 설정되지 않았습니다. 관리자에게 문의해 주세요.',
   database_error: '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
 };

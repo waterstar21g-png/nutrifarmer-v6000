@@ -45,7 +45,7 @@ export default async function MobileHomePage({ searchParams }: Props) {
   return (
     <>
       <section className="m6-hero">
-        <p className="m6-hero__label">V6000 · 모바일</p>
+        <p className="m6-hero__label">V6.1 · 모바일</p>
         <h1 className="m6-hero__title">기록하는 삶, 나누는 이야기</h1>
         <p className="m6-hero__desc">
           {SHOWCASE_CATS.length}개 카테고리 · 일상·가족·성장·나눔

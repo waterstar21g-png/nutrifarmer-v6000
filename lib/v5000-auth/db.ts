@@ -7,22 +7,46 @@ const schema = { ...authSchema, ...contentSchema };
 
 let dbInstance: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
+const URL_ENV_KEYS = [
+  'POSTGRES_PRISMA_URL',
+  'POSTGRES_URL',
+  'DATABASE_URL',
+  'POSTGRES_URL_NON_POOLING',
+  'NEON_DATABASE_URL',
+] as const;
+
+function normalizePostgresUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    if (!u.searchParams.has('connect_timeout')) {
+      u.searchParams.set('connect_timeout', '15');
+    }
+    if (process.env.NODE_ENV !== 'production' && u.searchParams.get('channel_binding') === 'require') {
+      u.searchParams.delete('channel_binding');
+    }
+    if (!u.searchParams.has('sslmode')) {
+      u.searchParams.set('sslmode', 'require');
+    }
+    return u.toString();
+  } catch {
+    return raw;
+  }
+}
+
 export function postgresUrl(): string | undefined {
-  const keys = [
-    'POSTGRES_URL',
-    'DATABASE_URL',
-    'POSTGRES_PRISMA_URL',
-    'NEON_DATABASE_URL',
-  ];
-  for (const key of keys) {
+  for (const key of URL_ENV_KEYS) {
     const v = process.env[key]?.trim();
-    if (v) return v;
+    if (v) return normalizePostgresUrl(v);
   }
   return undefined;
 }
 
 export function isDatabaseConfigured(): boolean {
   return !!postgresUrl();
+}
+
+export function resetDb(): void {
+  dbInstance = null;
 }
 
 export function getDb() {

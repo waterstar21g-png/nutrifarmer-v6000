@@ -2,43 +2,48 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SHOWCASE_CATS } from '@/lib/site-data';
 
-interface Cat {
-  slug: string;
-  name: string;
-}
+const RESERVED = new Set([
+  'categories', 'theme', 'upload', 'photo', 'text', 'done', 'write', 'login', 'api',
+]);
 
-interface Props {
-  cats: Cat[];
-}
-
-export function MobileBottomNav({ cats }: Props) {
+export function MobileBottomNav() {
   const pathname = usePathname();
   const isHome = pathname === '/';
-  const isWrite = pathname.startsWith('/write');
-  const activeCat = cats.find(c => pathname === `/${c.slug}` || pathname.startsWith(`/${c.slug}/`));
+  const isCategories =
+    pathname === '/categories' ||
+    SHOWCASE_CATS.some(c => pathname === `/${c.slug}` || pathname.startsWith(`/${c.slug}/`)) ||
+    (!RESERVED.has(pathname.split('/')[1] ?? '') && pathname.split('/').length >= 2 && !pathname.startsWith('/theme'));
+  const isTheme = pathname.startsWith('/theme');
+  const isUpload =
+    pathname === '/upload' || pathname.startsWith('/photo') || pathname.startsWith('/done');
+  const isWrite = pathname === '/write' || pathname.startsWith('/text');
+  const isAccount = pathname.startsWith('/login');
 
   return (
-    <nav className="m6-bottom-nav" aria-label="모바일 메인 메뉴">
+    <nav className="m6-bottom-nav m6-bottom-nav--6" aria-label="모바일 메인 메뉴">
       <Link href="/" className={`m6-bottom-nav__item${isHome ? ' is-active' : ''}`}>
         <span className="m6-bottom-nav__icon" aria-hidden>🏠</span>
         <span>홈</span>
       </Link>
-      <Link
-        href={activeCat ? `/${activeCat.slug}` : `/${cats[0]?.slug ?? 'daily-life'}`}
-        className={`m6-bottom-nav__item${activeCat ? ' is-active' : ''}`}
-      >
+      <Link href="/categories" className={`m6-bottom-nav__item${isCategories ? ' is-active' : ''}`}>
         <span className="m6-bottom-nav__icon" aria-hidden>📂</span>
         <span>카테고리</span>
+      </Link>
+      <Link href="/theme" className={`m6-bottom-nav__item${isTheme ? ' is-active' : ''}`}>
+        <span className="m6-bottom-nav__icon" aria-hidden>🎨</span>
+        <span>테마</span>
+      </Link>
+      <Link href="/upload" className={`m6-bottom-nav__item${isUpload ? ' is-active' : ''}`}>
+        <span className="m6-bottom-nav__icon" aria-hidden>📷</span>
+        <span>사진올리기</span>
       </Link>
       <Link href="/write" className={`m6-bottom-nav__item${isWrite ? ' is-active' : ''}`}>
         <span className="m6-bottom-nav__icon" aria-hidden>✍️</span>
         <span>글쓰기</span>
       </Link>
-      <Link
-        href="/login"
-        className={`m6-bottom-nav__item${pathname.startsWith('/login') ? ' is-active' : ''}`}
-      >
+      <Link href="/login" className={`m6-bottom-nav__item${isAccount ? ' is-active' : ''}`}>
         <span className="m6-bottom-nav__icon" aria-hidden>👤</span>
         <span>계정</span>
       </Link>

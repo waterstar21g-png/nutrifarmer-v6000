@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { SESSION_COOKIE, SESSION_COOKIE_OPTS } from '@/lib/v5000-auth/config';
+import {
+  applyRefreshedSessionCookie,
+  decodeSession,
+  isSessionIdle,
+  parseSessionPayload,
+  readSessionTokenFromCookies,
+} from '@/lib/v5000-auth/session';
+import { SESSION_COOKIE, SESSION_COOKIE_OPTS, loginErrorMessage } from '@/lib/v5000-auth/config';
 import { withDatabase } from '@/lib/v5000-auth/api';
-import { readSessionFromCookies } from '@/lib/v5000-auth/session';
-import { findUserById } from '@/lib/v5000-auth/users';
-import { countPublishedPostsByAuthor } from '@/lib/v5000-content/posts';
-import { userMemberGrade } from '@/lib/v5000-auth/config';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,18 +18,38 @@ function clearSessionResponse() {
 }
 
 export async function GET() {
-  const session = await readSessionFromCookies();
-  if (!session) {
-    return NextResponse.json({ loggedIn: false });
+  const token = await readSessionTokenFromCookies();
+  if (!token) return NextResponse.json({ loggedIn: false });
+
+  const raw = parseSessionPayload(token);
+  if (!raw) return clearSessionResponse();
+
+  const now = Math.floor(Date.now() / 1000);
+  if (raw.exp < now) return clearSessionResponse();
+
+  if (isSessionIdle(raw)) {
+    const res = NextResponse.json({
+      loggedIn: false,
+      code: 'session_idle',
+      message: loginErrorMessage('session_idle'),
+    });
+    res.cookies.set(SESSION_COOKIE, '', { ...SESSION_COOKIE_OPTS, maxAge: 0 });
+    return res;
   }
 
+  const session = decodeSession(token);
+  if (!session) return clearSessionResponse();
+
   const result = await withDatabase(async () => {
+    const { findUserById } = await import('@/lib/v5000-auth/users');
+    const { countPublishedPostsByAuthor } = await import('@/lib/v5000-content/posts');
+    const { userMemberGrade } = await import('@/lib/v5000-auth/config');
+
     const user = await findUserById(session.userId);
     if (!user) return clearSessionResponse();
 
     const publishedPostCount = await countPublishedPostsByAuthor(user.id);
-
-    return NextResponse.json({
+    const res = NextResponse.json({
       loggedIn: true,
       user: {
         id: user.id,
@@ -38,6 +61,8 @@ export async function GET() {
         mustResetPassword: user.mustResetPassword,
       },
     });
+    applyRefreshedSessionCookie(res, session);
+    return res;
   });
 
   if (result instanceof NextResponse) return result;

@@ -2,26 +2,64 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
-import { SHOWCASE_CATS } from '@/lib/site-data';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MobileBottomNav } from './MobileBottomNav';
 
 const AUTH_API = '/api/v5000/auth';
+const TOUCH_INTERVAL_MS = 2 * 60 * 1000;
 
 export function MobileShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [userName, setUserName] = useState<string | null>(null);
   const isLogin = pathname.startsWith('/login');
+  const activeRef = useRef(false);
+  const lastTouchRef = useRef(0);
 
   const refreshAuth = useCallback(() => {
-    fetch(`${AUTH_API}/me`)
-      .then(r => r.json())
-      .then(data => setUserName(data.loggedIn ? data.user?.name ?? '회원' : null))
+    fetch(`${AUTH_API}/me`, { credentials: 'same-origin' })
+      .then(async r => {
+        const data = await r.json();
+        if (data.code === 'session_idle') {
+          router.push('/login?reason=idle');
+          return;
+        }
+        setUserName(data.loggedIn ? data.user?.name ?? '회원' : null);
+      })
       .catch(() => setUserName(null));
-  }, []);
+  }, [router]);
+
+  const touchSession = useCallback(() => {
+    const now = Date.now();
+    if (!activeRef.current || now - lastTouchRef.current < TOUCH_INTERVAL_MS) return;
+    lastTouchRef.current = now;
+    fetch(`${AUTH_API}/touch`, { method: 'POST', credentials: 'same-origin' })
+      .then(async r => {
+        if (r.status === 401) {
+          const data = await r.json();
+          if (data.code === 'session_idle') router.push('/login?reason=idle');
+        }
+      })
+      .catch(() => undefined);
+  }, [router]);
 
   useEffect(() => { refreshAuth(); }, [refreshAuth, pathname]);
+
+  useEffect(() => {
+    if (isLogin) return;
+    const onActivity = () => {
+      activeRef.current = true;
+      touchSession();
+    };
+    window.addEventListener('pointerdown', onActivity, { passive: true });
+    window.addEventListener('keydown', onActivity);
+    window.addEventListener('scroll', onActivity, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', onActivity);
+      window.removeEventListener('keydown', onActivity);
+      window.removeEventListener('scroll', onActivity);
+    };
+  }, [isLogin, touchSession]);
 
   function onSearch(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,7 +75,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="m6-app">
       <header className="m6-header">
-        <Link href="/" className="m6-header__brand">탁월한 찬사</Link>
+        <Link href="/" className="m6-header__brand">탁월한 찬사 · V6.1</Link>
         <form className="m6-header__search" onSubmit={onSearch}>
           <input name="q" type="search" placeholder="검색" aria-label="검색" />
         </form>
@@ -48,7 +86,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
         )}
       </header>
       <main className="m6-main">{children}</main>
-      <MobileBottomNav cats={SHOWCASE_CATS} />
+      <MobileBottomNav />
     </div>
   );
 }

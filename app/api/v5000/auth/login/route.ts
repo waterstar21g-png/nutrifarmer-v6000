@@ -128,6 +128,7 @@ export async function POST(req: NextRequest) {
         role: user.role,
         loginId: user.loginId,
         displayName: user.displayName,
+        remember,
       },
       remember,
     );

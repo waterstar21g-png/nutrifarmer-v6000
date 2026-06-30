@@ -6,6 +6,7 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: projectRoot,
+  allowedDevOrigins: ['192.168.0.9', '172.17.0.9', 'localhost'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'www.nutrifarmer.kr', pathname: '/**' },
