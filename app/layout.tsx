@@ -33,16 +33,17 @@ export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const version = appVersionLabel();
   return (
     <html lang="ko" className={notoSans.variable}>
       <head>
         <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta httpEquiv="Pragma" content="no-cache" />
         <meta httpEquiv="Expires" content="0" />
-        <meta name="app-version" content={appVersionLabel()} />
+        <meta name="app-version" content={version} />
       </head>
       <body className="m6-body">
-        <MobileShell>{children}</MobileShell>
+        <MobileShell serverVersion={version}>{children}</MobileShell>
       </body>
     </html>
   );

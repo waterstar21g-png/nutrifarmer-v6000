@@ -1,16 +1,15 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 
 const RESERVED = new Set([
   'categories', 'theme', 'upload', 'photo', 'text', 'done', 'write', 'login', 'api',
 ]);
 
+/** Next.js 클라이언트 라우터 대신 전체 새로고침 — 모바일 옛 JS 캐시 회피 */
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const router = useRouter();
   const isHome = pathname === '/';
   const isCategories =
     pathname === '/categories' ||
@@ -23,15 +22,10 @@ export function MobileBottomNav() {
   const isAccount = pathname.startsWith('/login');
 
   const navLink = (href: string, active: boolean, icon: string, label: string) => (
-    <Link
-      href={href}
-      prefetch={false}
-      className={`m6-bottom-nav__item${active ? ' is-active' : ''}`}
-      onClick={() => router.refresh()}
-    >
+    <a href={href} className={`m6-bottom-nav__item${active ? ' is-active' : ''}`}>
       <span className="m6-bottom-nav__icon" aria-hidden>{icon}</span>
       <span>{label}</span>
-    </Link>
+    </a>
   );
 
   return (
