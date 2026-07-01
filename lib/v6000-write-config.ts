@@ -1,11 +1,11 @@
-/** V6.1 mobile write — constants (from V7000) */
+/** V6.1 mobile write — constants */
 
-export const V7000_AUTO_MODE_KEY = 'nf-v7000-auto-mode';
-export const V7000_LAST_POST_KEY = 'nf-v7000-last-post';
+export const V6000_AUTO_MODE_KEY = 'nf-v6000-auto-mode';
+export const V6000_LAST_POST_KEY = 'nf-v6000-last-post';
 
 export type PhotoFlowMode = 'single' | 'continuous' | 'multi';
 
-export interface V7000LastPost {
+export interface V6000LastPost {
   id: number;
   slug: string;
   categorySlug: string;
@@ -13,7 +13,7 @@ export interface V7000LastPost {
   at: number;
 }
 
-export interface V7000MenuItem {
+export interface V6000MenuItem {
   id: number;
   title: string;
   desc: string;
@@ -22,7 +22,7 @@ export interface V7000MenuItem {
   external?: boolean;
 }
 
-export const V7000_MENUS: V7000MenuItem[] = [
+export const V6000_MENUS: V6000MenuItem[] = [
   { id: 1, title: '사진 → 글', desc: '한 장으로 AI 글 작성', href: '/photo' },
   { id: 2, title: '글 → 사진', desc: '글 내용에 맞는 이미지 추천', href: '/text' },
   { id: 3, title: '사진 → 글 연속', desc: '게시 후 바로 다음 사진', href: '/photo?mode=continuous' },

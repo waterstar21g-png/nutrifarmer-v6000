@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
-import { readAutoMode } from '@/lib/v7000-auto-mode';
-import { TEXT_FLOW_STEPS } from '@/lib/v7000-config';
-import { saveLastPost } from '@/lib/v7000-last-post';
-import { publishPost } from '@/lib/v7000-client';
+import { readAutoMode } from '@/lib/v6000-auto-mode';
+import { TEXT_FLOW_STEPS } from '@/lib/v6000-write-config';
+import { saveLastPost } from '@/lib/v6000-last-post';
+import { publishPost } from '@/lib/v6000-write-client';
 import { extractLocalKeywords, fetchSuggestedImages, type SuggestedImage } from '@/lib/write-image-suggest';
 import { FlowChrome } from './FlowChrome';
 
