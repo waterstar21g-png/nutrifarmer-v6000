@@ -22,9 +22,19 @@ async function parseJson<T>(r: Response): Promise<T & { ok?: boolean; message?: 
     throw new Error(code === 'session_idle' ? 'SESSION_IDLE' : 'LOGIN_REQUIRED');
   }
   if (!r.ok || data.ok === false) {
-    throw new Error(data.message ?? `HTTP ${r.status}`);
+    const msg = data.message ?? apiErrorLabel(data.code, r.status);
+    throw new Error(msg);
   }
   return data;
+}
+
+function apiErrorLabel(code?: string, status?: number): string {
+  if (code === 'no_api_key') return 'OpenAI API 키가 설정되지 않았습니다.';
+  if (code === 'r2_unconfigured' || code === 'storage_unconfigured') return '사진 저장소(R2)가 설정되지 않았습니다.';
+  if (code === 'storage_auth_failed') return '사진 저장소 인증 오류입니다.';
+  if (code === 'database_unconfigured') return '데이터베이스가 설정되지 않았습니다.';
+  if (code === 'auth_unconfigured') return '인증 설정이 완료되지 않았습니다.';
+  return status ? `HTTP ${status}` : '요청 실패';
 }
 
 export async function uploadPhoto(file: File, alt?: string): Promise<UploadedMedia> {

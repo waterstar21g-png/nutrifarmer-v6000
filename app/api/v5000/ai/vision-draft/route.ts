@@ -10,7 +10,10 @@ export async function POST(req: NextRequest) {
 
   const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) {
-    return NextResponse.json({ ok: false, code: 'no_api_key' }, { status: 503 });
+    return NextResponse.json(
+      { ok: false, code: 'no_api_key', message: 'OpenAI API 키가 설정되지 않았습니다. Vercel 환경변수 OPENAI_API_KEY를 확인해 주세요.' },
+      { status: 503 },
+    );
   }
 
   let body: { imageUrls?: string[]; hint?: string; userIntent?: string; mergeMode?: 'single' | 'multi' };
