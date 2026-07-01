@@ -5,7 +5,6 @@ import { MobileSinglePost } from '@/components/m6/MobileSinglePost';
 import { findPublishedPostWithAuthor } from '@/lib/v5000-content/posts';
 import { firstImageFromBody } from '@/lib/v5000-content/public-posts';
 import { rewriteHtmlMediaUrls } from '@/lib/v5000-content/media-mirror';
-import { readSessionFromCookies } from '@/lib/v5000-auth/session';
 import { stripLeadingPostMeta } from '@/lib/single-post-body';
 
 export const dynamic = 'force-dynamic';
@@ -50,9 +49,6 @@ export default async function MobileSinglePage({ params, searchParams }: Props) 
 
   if (!post) notFound();
 
-  const session = await readSessionFromCookies();
-  const isOwner = session?.userId === post.authorId;
-
   const rawBodyHtml = await rewriteHtmlMediaUrls(post.body);
   const cleanedBody = stripLeadingPostMeta(rawBodyHtml);
   const displayImgUrl = firstImageFromBody(cleanedBody);
@@ -75,7 +71,6 @@ export default async function MobileSinglePage({ params, searchParams }: Props) 
       authorName={post.authorDisplayName ?? '회원'}
       dateStr={dateStr}
       publishedIso={publishedIso}
-      isOwner={isOwner}
     />
   );
 }

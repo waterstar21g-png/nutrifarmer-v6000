@@ -12,7 +12,6 @@ interface Props {
   authorName: string;
   dateStr: string;
   publishedIso: string;
-  isOwner: boolean;
 }
 
 export function MobileSinglePost({
@@ -25,7 +24,6 @@ export function MobileSinglePost({
   authorName,
   dateStr,
   publishedIso,
-  isOwner,
 }: Props) {
   const hasBody = bodyHtml.replace(/<[^>]+>/g, '').trim().length > 0;
 
@@ -33,8 +31,6 @@ export function MobileSinglePost({
     <article className="m6-single">
       <MobilePostOwnerMenu
         postId={postId}
-        categorySlug={categorySlug}
-        isOwner={isOwner}
         variant="single"
         initialFullBody={fullBodyHtml}
         afterDeleteTo={`/${categorySlug}`}

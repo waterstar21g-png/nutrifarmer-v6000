@@ -9,10 +9,11 @@ import {
   plainTextToBodyHtml,
 } from '@/lib/single-post-body';
 
+/** V6.1 개발 단계 — 향후 샛별·일반·가족·관리자 권한 체계로 확장 예정 */
+export const POST_ACTION_LOGIN_MSG = '먼저 로그인 하세요';
+
 interface Props {
   postId: number;
-  categorySlug: string;
-  isOwner: boolean;
   variant?: 'single' | 'card';
   initialFullBody?: string;
   afterDeleteTo?: string;
@@ -20,8 +21,6 @@ interface Props {
 
 export function MobilePostOwnerMenu({
   postId,
-  categorySlug,
-  isOwner,
   variant = 'single',
   initialFullBody,
   afterDeleteTo,
@@ -46,16 +45,40 @@ export function MobilePostOwnerMenu({
     return () => document.removeEventListener('pointerdown', onDocClick);
   }, []);
 
+  const guardAuth = useCallback(async (): Promise<boolean> => {
+    setError(null);
+    try {
+      const r = await fetch('/api/v5000/auth/me', { credentials: 'same-origin' });
+      const data = await r.json();
+      if (!data.loggedIn) {
+        setError(POST_ACTION_LOGIN_MSG);
+        return false;
+      }
+      return true;
+    } catch {
+      setError(POST_ACTION_LOGIN_MSG);
+      return false;
+    }
+  }, []);
+
+  const mapActionError = useCallback((status: number, message?: string) => {
+    if (status === 401) return POST_ACTION_LOGIN_MSG;
+    return message ?? '처리하지 못했습니다.';
+  }, []);
+
   const openEdit = useCallback(async () => {
     setMenuOpen(false);
-    setError(null);
+    if (!(await guardAuth())) return;
+
     setBusy(true);
     try {
       let fullBody = initialFullBody;
       if (!fullBody) {
         const r = await fetch(`/api/v5000/posts/${postId}`, { credentials: 'same-origin' });
         const data = await r.json();
-        if (!r.ok || !data.ok) throw new Error(data.message ?? '글을 불러오지 못했습니다.');
+        if (!r.ok || !data.ok) {
+          throw new Error(mapActionError(r.status, data.message));
+        }
         fullBody = data.post.body as string;
       }
       imageBlocksRef.current = extractImageBlocks(fullBody);
@@ -66,7 +89,13 @@ export function MobilePostOwnerMenu({
     } finally {
       setBusy(false);
     }
-  }, [initialFullBody, postId]);
+  }, [guardAuth, initialFullBody, mapActionError, postId]);
+
+  async function onDeletePrompt() {
+    setMenuOpen(false);
+    if (!(await guardAuth())) return;
+    setConfirmDelete(true);
+  }
 
   async function onDelete() {
     setBusy(true);
@@ -77,7 +106,9 @@ export function MobilePostOwnerMenu({
         credentials: 'same-origin',
       });
       const data = await r.json();
-      if (!r.ok || !data.ok) throw new Error(data.message ?? '삭제 실패');
+      if (!r.ok || !data.ok) {
+        throw new Error(mapActionError(r.status, data.message));
+      }
       if (afterDeleteTo) router.push(afterDeleteTo);
       else router.refresh();
     } catch (e) {
@@ -100,7 +131,9 @@ export function MobilePostOwnerMenu({
         body: JSON.stringify({ body }),
       });
       const data = await r.json();
-      if (!r.ok || !data.ok) throw new Error(data.message ?? '저장 실패');
+      if (!r.ok || !data.ok) {
+        throw new Error(mapActionError(r.status, data.message));
+      }
       imageBlocksRef.current = extractImageBlocks(body);
       setEditOpen(false);
       router.refresh();
@@ -110,8 +143,6 @@ export function MobilePostOwnerMenu({
       setBusy(false);
     }
   }
-
-  if (!isOwner) return null;
 
   const toolbarClass = variant === 'card' ? 'm6-post-card__toolbar' : 'm6-single__toolbar';
 
@@ -134,7 +165,7 @@ export function MobilePostOwnerMenu({
               type="button"
               role="menuitem"
               className="is-danger"
-              onClick={e => { e.stopPropagation(); setConfirmDelete(true); setMenuOpen(false); }}
+              onClick={e => { e.stopPropagation(); void onDeletePrompt(); }}
             >
               삭제
             </button>

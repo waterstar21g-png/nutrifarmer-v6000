@@ -4,7 +4,6 @@ import { getThemePanel } from '@/lib/theme-map';
 import { listPostsByTheme } from '@/lib/theme-posts';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
-import { readSessionFromCookies } from '@/lib/v5000-auth/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,8 +24,6 @@ export default async function ThemeDetailPage({ params }: Props) {
   if (!panel) notFound();
 
   const posts = await listPostsByTheme(key, 12);
-  const session = await readSessionFromCookies();
-  const currentUserId = session?.userId ?? null;
 
   return (
     <>
@@ -45,7 +42,7 @@ export default async function ThemeDetailPage({ params }: Props) {
         </div>
         <div className="m6-post-list">
           {posts.length > 0 ? (
-            posts.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} currentUserId={currentUserId} />)
+            posts.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} />)
           ) : (
             <p className="m6-empty">이 테마에 게시글이 없습니다.</p>
           )}

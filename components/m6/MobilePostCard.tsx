@@ -5,20 +5,16 @@ import { MobilePostOwnerMenu } from './MobilePostOwnerMenu';
 
 interface Props {
   post: PreviewPost;
-  currentUserId?: number | null;
 }
 
 /** 서버 컴포넌트 — 옛 JS 하이드레이션이 목록 UI를 덮어쓰지 못함 */
-export function MobilePostCard({ post, currentUserId }: Props) {
+export function MobilePostCard({ post }: Props) {
   const href = postHref(post.categorySlug, post.slug, post.pid ?? post.id);
-  const isOwner = !!currentUserId && currentUserId === post.authorId;
 
   return (
     <div className="m6-post-card-wrap">
       <MobilePostOwnerMenu
         postId={post.id}
-        categorySlug={post.categorySlug}
-        isOwner={isOwner}
         variant="card"
       />
       <Link href={href} prefetch={false} className="m6-post-card">
