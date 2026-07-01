@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { finishAuthNavigation } from '@/lib/auth-navigation';
+import { isLoginPopup, navigateAfterLogin } from '@/lib/auth-navigation';
+import { notifyMobileAuthChanged } from '@/lib/mobile-auth-events';
 import {
   AUTH_ID_LABEL,
   FIND_HEADING,
@@ -78,12 +79,14 @@ export function LoginHub() {
   const [meUser, setMeUser] = useState<MeUser | null>(null);
   const [sessionReady, setSessionReady] = useState(false);
 
-  const finishAuth = useCallback((target = redirectTo) => {
-    finishAuthNavigation((path) => {
-      router.replace(path);
-      router.refresh();
-    }, target);
-  }, [router, redirectTo]);
+  const goAfterAuth = useCallback((target = redirectTo) => {
+    notifyMobileAuthChanged();
+    if (isLoginPopup()) {
+      navigateAfterLogin(target);
+      return;
+    }
+    window.location.assign(target);
+  }, [redirectTo]);
 
   const showNotice = useCallback((msg: string, type: 'error' | 'info' | 'success' = 'error') => {
     setNotice(msg);
@@ -146,8 +149,9 @@ export function LoginHub() {
     try {
       await fetch(`${AUTH_API}/logout`, { method: 'POST', credentials: 'same-origin' });
       setMeUser(null);
-      showNotice('로그아웃되었습니다.', 'success');
-      router.refresh();
+      setPassword('');
+      showNotice('로그아웃되었습니다. 다시 로그인할 수 있습니다.', 'success');
+      notifyMobileAuthChanged();
     } finally {
       setLoading(false);
     }
@@ -170,7 +174,7 @@ export function LoginHub() {
       });
       const data = await res.json();
       if (data.ok) {
-        finishAuth(redirectTo);
+        goAfterAuth(redirectTo);
         return;
       }
       if (data.code === 'must_reset_password') {
@@ -305,7 +309,7 @@ export function LoginHub() {
       });
       const data = await res.json();
       if (data.ok) {
-        finishAuth(redirectTo);
+        goAfterAuth(redirectTo);
         return;
       }
       showNotice(data.message ?? loginErrorMessage(data.code), 'error');
@@ -333,10 +337,8 @@ export function LoginHub() {
             </div>
             {notice && <div className={`nf-auth-notice nf-auth-notice--${noticeType}`} role="alert">{notice}</div>}
             <div className="nf-auth-logged-in-actions">
-              <button type="button" className="nf-auth-submit" onClick={() => finishAuth(redirectTo)}>
-                홈으로
-              </button>
-              <button type="button" className="nf-auth-logout" onClick={handleLogout} disabled={loading}>
+              <a href="/" className="nf-auth-submit nf-auth-submit--link">홈으로</a>
+              <button type="button" className="nf-auth-logout-btn" onClick={handleLogout} disabled={loading}>
                 {loading ? '처리 중…' : '로그아웃'}
               </button>
             </div>
@@ -421,9 +423,7 @@ export function LoginHub() {
               <button type="button" className="nf-auth-link-btn" onClick={() => goPanel('register')}>회원가입</button>
             </p>
             <div className="nf-auth-links">
-              <button type="button" className="nf-auth-link-btn" onClick={() => finishAuth('/')}>
-                ← 홈으로
-              </button>
+              <a href="/" className="nf-auth-link-btn">← 홈으로 (탭 🏠)</a>
             </div>
           </div>
         )}

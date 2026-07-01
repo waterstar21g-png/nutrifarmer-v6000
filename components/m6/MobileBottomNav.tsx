@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 
@@ -8,8 +7,7 @@ const RESERVED = new Set([
   'categories', 'theme', 'upload', 'photo', 'text', 'done', 'write', 'login', 'api',
 ]);
 
-/** Next.js 클라이언트 라우터 대신 전체 새로고침 — 모바일 옛 JS 캐시 회피 */
-export function MobileBottomNav() {
+export function MobileBottomNav({ loggedIn = false }: { loggedIn?: boolean }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const isCategories =
@@ -36,10 +34,10 @@ export function MobileBottomNav() {
       {navLink('/theme', isTheme, '🎨', '테마')}
       {navLink('/upload', isUpload, '📷', '사진올리기')}
       {navLink('/write', isWrite, '✍️', '글쓰기')}
-      <Link href="/login" prefetch={false} className={`m6-bottom-nav__item${isAccount ? ' is-active' : ''}`}>
-        <span className="m6-bottom-nav__icon" aria-hidden>👤</span>
-        <span>계정</span>
-      </Link>
+      <a href="/login" className={`m6-bottom-nav__item${isAccount ? ' is-active' : ''}`}>
+        <span className="m6-bottom-nav__icon" aria-hidden>{loggedIn ? '✓' : '👤'}</span>
+        <span>{loggedIn ? '계정' : '로그인'}</span>
+      </a>
     </nav>
   );
 }

@@ -13,16 +13,14 @@ body:has(.nf-auth-page-root) main {
 }
 
 .nf-auth-scene {
-  position: fixed;
-  inset: 0;
-  z-index: 99990;
-  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  min-height: calc(100dvh - var(--m6-header-h) - var(--m6-nav-h) - var(--m6-safe-bottom) - 1rem);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1rem;
   font-family: var(--font-noto, "Noto Sans KR", sans-serif);
-  background: linear-gradient(135deg, #0f2744 0%, #1a5fa8 45%, #c05621 100%);
   animation: nfAuthFade 0.2s ease;
 }
 
@@ -217,7 +215,20 @@ body:has(.nf-auth-page-root) main {
   margin-bottom: 1rem;
 }
 
-.nf-auth-logout,
+.nf-auth-logout-btn {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 1.5px solid #c05621;
+  border-radius: 12px;
+  background: #fff;
+  color: #c05621;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nf-auth-logout-btn:disabled { opacity: 0.7; cursor: wait; }
 .nf-auth-link-btn {
   background: none;
   border: none;
@@ -229,6 +240,9 @@ body:has(.nf-auth-page-root) main {
   text-align: center;
   text-decoration: none;
 }
+
+.nf-auth-logout,
+.nf-auth-logout-btn:hover:not(:disabled) { background: #fff8f3; }
 
 .nf-auth-logout:hover,
 .nf-auth-link-btn:hover { text-decoration: underline; }

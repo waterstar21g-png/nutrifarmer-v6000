@@ -43,8 +43,22 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 .m6-app--login {
-  padding-bottom: 0;
   background: linear-gradient(135deg, #0f2744 0%, #1a5fa8 45%, #c05621 100%);
+}
+
+.m6-header--login {
+  justify-content: space-between;
+}
+
+.m6-header__auth--label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.m6-main--login {
+  padding: 0;
+  max-width: none;
 }
 
 .m6-main {

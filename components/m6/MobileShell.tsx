@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { MOBILE_AUTH_CHANGED } from '@/lib/mobile-auth-events';
 import { MobileBottomNav } from './MobileBottomNav';
 
 const AUTH_API = '/api/v5000/auth';
@@ -50,9 +51,14 @@ export function MobileShell({
   }, []);
 
   useEffect(() => {
-    if (isLogin) return;
     refreshAuth();
-  }, [refreshAuth, pathname, isLogin]);
+  }, [refreshAuth, pathname]);
+
+  useEffect(() => {
+    const onAuthChanged = () => refreshAuth();
+    window.addEventListener(MOBILE_AUTH_CHANGED, onAuthChanged);
+    return () => window.removeEventListener(MOBILE_AUTH_CHANGED, onAuthChanged);
+  }, [refreshAuth]);
 
   useEffect(() => {
     if (isLogin) return;
@@ -77,25 +83,29 @@ export function MobileShell({
     if (q) router.push(`/?s=${encodeURIComponent(q)}`);
   }
 
-  if (isLogin) {
-    return <div className="m6-app m6-app--login">{children}</div>;
-  }
-
   return (
-    <div className="m6-app">
-      <header className="m6-header">
-        <a href="/" className="m6-header__brand">탁월한 찬사 · {serverVersion}</a>
-        <form className="m6-header__search" onSubmit={onSearch}>
-          <input name="q" type="search" placeholder="검색" aria-label="검색" />
-        </form>
-        {userName ? (
-          <Link href="/login" className="m6-header__auth" title={userName}>{userName.slice(0, 4)}</Link>
-        ) : (
-          <Link href="/login" className="m6-header__auth">로그인</Link>
-        )}
-      </header>
-      <main className="m6-main">{children}</main>
-      <MobileBottomNav />
+    <div className={`m6-app${isLogin ? ' m6-app--login' : ''}`}>
+      {!isLogin && (
+        <header className="m6-header">
+          <a href="/" className="m6-header__brand">탁월한 찬사 · {serverVersion}</a>
+          <form className="m6-header__search" onSubmit={onSearch}>
+            <input name="q" type="search" placeholder="검색" aria-label="검색" />
+          </form>
+          {userName ? (
+            <Link href="/login" className="m6-header__auth" title={userName}>{userName.slice(0, 4)}</Link>
+          ) : (
+            <Link href="/login" className="m6-header__auth">로그인</Link>
+          )}
+        </header>
+      )}
+      {isLogin && (
+        <header className="m6-header m6-header--login">
+          <a href="/" className="m6-header__brand">← 홈</a>
+          <span className="m6-header__auth m6-header__auth--label">계정</span>
+        </header>
+      )}
+      <main className={`m6-main${isLogin ? ' m6-main--login' : ''}`}>{children}</main>
+      <MobileBottomNav loggedIn={!!userName} />
     </div>
   );
 }
