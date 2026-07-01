@@ -15,6 +15,7 @@ interface Props {
   title: string;
   imageUrl: string | null;
   bodyHtml: string;
+  fullBodyHtml: string;
   authorName: string;
   dateStr: string;
   publishedIso: string;
@@ -27,6 +28,7 @@ export function MobileSinglePost({
   title,
   imageUrl,
   bodyHtml,
+  fullBodyHtml,
   authorName,
   dateStr,
   publishedIso,
@@ -41,7 +43,7 @@ export function MobileSinglePost({
   const [displayBody, setDisplayBody] = useState(bodyHtml);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const imageBlocksRef = useRef(extractImageBlocks(bodyHtml));
+  const imageBlocksRef = useRef(extractImageBlocks(fullBodyHtml));
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -94,6 +96,7 @@ export function MobileSinglePost({
       const data = await r.json();
       if (!r.ok || !data.ok) throw new Error(data.message ?? '저장 실패');
       setDisplayBody(body);
+      imageBlocksRef.current = extractImageBlocks(body);
       setEditOpen(false);
       router.refresh();
     } catch (e) {

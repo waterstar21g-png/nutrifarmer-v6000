@@ -113,12 +113,23 @@ export async function getPreviewPostsBySlugs(
 
 export async function getLatestPreviewPosts(perPage = 6): Promise<PreviewPost[]> {
   const rows = await listLatestPublished(Math.max(perPage, 20)).catch(() => []);
-  return rows.slice(0, perPage).map(row => rowToPreviewPost(row));
+  const previews = await Promise.all(
+    rows.slice(0, perPage).map(async row => {
+      const body = await rewriteHtmlMediaUrls(row.body);
+      return rowToPreviewPost({ ...row, body });
+    }),
+  );
+  return previews;
 }
 
 export async function searchPosts(query: string, limit = 12): Promise<PreviewPost[]> {
   const rows = await searchPublishedPosts(query, limit).catch(() => []);
-  return rows.map(row => rowToPreviewPost(row));
+  return Promise.all(
+    rows.map(async row => {
+      const body = await rewriteHtmlMediaUrls(row.body);
+      return rowToPreviewPost({ ...row, body });
+    }),
+  );
 }
 
 export function galleryItemToGrid(item: GalleryItem) {

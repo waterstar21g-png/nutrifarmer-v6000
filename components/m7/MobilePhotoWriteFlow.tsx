@@ -8,6 +8,7 @@ import { readAutoMode } from '@/lib/v7000-auto-mode';
 import { menuTitleForMode, PHOTO_FLOW_STEPS, postReadUrl, type PhotoFlowMode } from '@/lib/v7000-config';
 import { saveLastPost } from '@/lib/v7000-last-post';
 import { publishPost, requestVisionDraft, uploadPhoto } from '@/lib/v7000-client';
+import { prependFeaturedImageIfMissing } from '@/lib/write-featured-image';
 import { FlowChrome } from './FlowChrome';
 
 type Step = 'pick' | 'confirm' | 'ai' | 'review';
@@ -46,6 +47,7 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
   const [toast, setToast] = useState<PublishedBrief | null>(null);
   const [showMeaningGrid, setShowMeaningGrid] = useState(false);
   const [userMeaning, setUserMeaning] = useState('');
+  const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
 
   const multi = mode === 'multi';
   const continuous = mode === 'continuous';
@@ -79,6 +81,15 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
     setShowMeaningGrid(false);
     setUserMeaning('');
     abortRef.current = false;
+    setUploadedUrls([]);
+  }
+
+  function buildPublishBody(textBody: string, urls: string[], title: string): string {
+    let html = textBody;
+    for (const url of urls) {
+      html = prependFeaturedImageIfMissing(html, url, title);
+    }
+    return html;
   }
 
   function hardAbort() {
@@ -144,11 +155,12 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
 
       if (abortRef.current) return;
       setDraft(result);
+      setUploadedUrls(uploaded);
 
       if (auto) {
         const post = await publishPost({
           title: result.title,
-          body: result.body,
+          body: buildPublishBody(result.body, uploaded, result.title),
           excerpt: result.excerpt,
           categorySlug: result.categorySlug,
         });
@@ -202,7 +214,7 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
     try {
       const post = await publishPost({
         title: draft.title,
-        body: draft.body,
+        body: buildPublishBody(draft.body, uploadedUrls, draft.title),
         excerpt: draft.excerpt,
         categorySlug: draft.categorySlug,
       });

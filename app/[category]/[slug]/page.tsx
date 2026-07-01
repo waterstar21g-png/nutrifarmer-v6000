@@ -71,6 +71,7 @@ export default async function MobileSinglePage({ params, searchParams }: Props) 
       title={post.title}
       imageUrl={displayImgUrl}
       bodyHtml={bodyHtml}
+      fullBodyHtml={cleanedBody}
       authorName={post.authorDisplayName ?? '회원'}
       dateStr={dateStr}
       publishedIso={publishedIso}
