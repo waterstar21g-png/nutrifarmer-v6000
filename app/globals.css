@@ -580,6 +580,12 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: 0.875rem;
 }
 
+.m6-empty--warn {
+  color: #b45309;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 /* 로그인 페이지 — 모바일 전용 여백 */
 .m6-login-wrap {
   max-width: 480px;

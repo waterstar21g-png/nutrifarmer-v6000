@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
 import { listPublishedByCategory } from '@/lib/v5000-content/posts';
 import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-posts';
-import { rewriteHtmlMediaUrls } from '@/lib/v5000-content/media-mirror';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
 
@@ -28,13 +28,11 @@ export default async function MobileCategoryPage({ params }: Props) {
   const cat = getSiteCategory(category);
   if (!cat) notFound();
 
-  const rows = await listPublishedByCategory(category, 30).catch(() => []);
-  const posts = await Promise.all(
-    rows.map(async row => {
-      const body = await rewriteHtmlMediaUrls(row.body);
-      return rowToPreviewPost({ ...row, body }, cat);
-    }),
+  const { data: rows, loadFailed } = await safeFetchPosts(
+    () => listPublishedByCategory(category, 30),
+    [],
   );
+  const posts = rows.map(row => rowToPreviewPost(row, cat));
 
   return (
     <>
@@ -51,10 +49,12 @@ export default async function MobileCategoryPage({ params }: Props) {
       <section className="m6-section">
         <div className="m6-section__head">
           <h2 className="m6-section__title">글 목록</h2>
-          <span className="m6-section__link">{posts.length}건</span>
+          <span className="m6-section__link">{loadFailed ? '—' : `${posts.length}건`}</span>
         </div>
         <div className="m6-post-list">
-          {posts.length > 0 ? (
+          {loadFailed ? (
+            <p className="m6-empty m6-empty--warn">{POSTS_LOAD_ERROR_MSG}</p>
+          ) : posts.length > 0 ? (
             posts.map(p => <MobilePostCard key={p.id} post={p} />)
           ) : (
             <p className="m6-empty">이 카테고리에 게시글이 없습니다.</p>

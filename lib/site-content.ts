@@ -99,12 +99,7 @@ export async function getPreviewPostsBySlugs(
     unique.map(async slug => {
       const rows = await listPublishedByCategory(slug, perPage).catch(() => []);
       const cat = getSiteCategory(slug);
-      const previews = await Promise.all(
-        rows.map(async row => {
-          const body = await rewriteHtmlMediaUrls(row.body);
-          return rowToPreviewPost({ ...row, body }, cat);
-        }),
-      );
+      const previews = rows.map(row => rowToPreviewPost(row, cat));
       return [slug, previews] as const;
     }),
   );
