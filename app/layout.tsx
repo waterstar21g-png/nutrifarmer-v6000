@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import { MobileShell } from '@/components/m6/MobileShell';
-import { AppVersionGuard } from '@/components/m6/AppVersionGuard';
 import { appVersionLabel } from '@/lib/app-version';
 
 const notoSans = Noto_Sans_KR({
@@ -44,12 +43,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="app-version" content={version} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=document.querySelector('meta[name="app-version"]');var n=m&&m.getAttribute('content');if(!n)return;var k='nf-v6000-app-version';var norm=function(v){return v?String(v).replace(/^V/i,'').trim():'';};var p=localStorage.getItem(k);if(p&&norm(p)!==norm(n)){localStorage.setItem(k,n);location.reload();return;}localStorage.setItem(k,n);}catch(e){}})();`,
+            __html: `(function(){try{var m=document.querySelector('meta[name="app-version"]');var n=m&&m.getAttribute('content');if(!n)return;var k='nf-v6000-app-version',rk='nf-v6000-reload-guard';var norm=function(v){return v?String(v).replace(/^V/i,'').trim():'';};var p=localStorage.getItem(k);if(p&&norm(p)!==norm(n)){var g=sessionStorage.getItem(rk);if(g===norm(n))return;sessionStorage.setItem(rk,norm(n));localStorage.setItem(k,n);location.reload();return;}localStorage.setItem(k,n);sessionStorage.removeItem(rk);}catch(e){}})();`,
           }}
         />
       </head>
       <body className="m6-body">
-        <AppVersionGuard />
         <MobileShell serverVersion={version}>{children}</MobileShell>
       </body>
     </html>
