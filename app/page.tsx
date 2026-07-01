@@ -5,6 +5,8 @@ import { getLatestPreviewPosts, searchPreviewPosts } from '@/lib/home-posts';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
 
+import { readSessionFromCookies } from '@/lib/v5000-auth/session';
+
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
@@ -19,6 +21,8 @@ interface Props {
 export default async function MobileHomePage({ searchParams }: Props) {
   const { s } = await searchParams;
   const query = s?.trim();
+  const session = await readSessionFromCookies();
+  const currentUserId = session?.userId ?? null;
 
   if (query) {
     const results = await searchPreviewPosts(query, 20).catch(() => []);
@@ -31,7 +35,7 @@ export default async function MobileHomePage({ searchParams }: Props) {
         </section>
         <div className="m6-post-list">
           {results.length > 0 ? (
-            results.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} />)
+            results.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} currentUserId={currentUserId} />)
           ) : (
             <p className="m6-empty">검색 결과가 없습니다.</p>
           )}
@@ -63,7 +67,7 @@ export default async function MobileHomePage({ searchParams }: Props) {
         </div>
         <div className="m6-post-list">
           {latest.length > 0 ? (
-            latest.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} />)
+            latest.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} currentUserId={currentUserId} />)
           ) : (
             <p className="m6-empty">아직 게시글이 없습니다.</p>
           )}

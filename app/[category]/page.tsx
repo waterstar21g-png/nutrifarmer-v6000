@@ -6,6 +6,7 @@ import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-po
 import { rewriteHtmlMediaUrls } from '@/lib/v5000-content/media-mirror';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
+import { readSessionFromCookies } from '@/lib/v5000-auth/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,8 @@ export default async function MobileCategoryPage({ params }: Props) {
   if (!cat) notFound();
 
   const rows = await listPublishedByCategory(category, 30).catch(() => []);
+  const session = await readSessionFromCookies();
+  const currentUserId = session?.userId ?? null;
   const posts = await Promise.all(
     rows.map(async row => {
       const body = await rewriteHtmlMediaUrls(row.body);
@@ -56,7 +59,7 @@ export default async function MobileCategoryPage({ params }: Props) {
         </div>
         <div className="m6-post-list">
           {posts.length > 0 ? (
-            posts.map(p => <MobilePostCard key={p.id} post={p} />)
+            posts.map(p => <MobilePostCard key={p.id} post={p} currentUserId={currentUserId} />)
           ) : (
             <p className="m6-empty">이 카테고리에 게시글이 없습니다.</p>
           )}

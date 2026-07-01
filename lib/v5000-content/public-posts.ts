@@ -25,6 +25,7 @@ export function rowToPreviewPost(row: V5000PostRow, cat?: CatItem | null): Previ
     imageUrl: firstImageFromBody(row.body),
     categorySlug: row.categorySlug,
     categoryName: c?.name ?? row.categorySlug,
+    authorId: row.authorId,
     pid: row.id,
   };
 }

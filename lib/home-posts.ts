@@ -12,6 +12,7 @@ export interface PreviewPost {
   imageUrl: string | null;
   categorySlug: string;
   categoryName: string;
+  authorId: number;
   /** V5000 게시글 — 단일글 URL disambiguation */
   pid?: number;
 }
