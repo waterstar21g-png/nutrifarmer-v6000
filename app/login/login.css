@@ -22,11 +22,8 @@ body:has(.nf-auth-page-root) main {
   justify-content: center;
   padding: 1.5rem;
   font-family: var(--font-noto, "Noto Sans KR", sans-serif);
-  background:
-    linear-gradient(135deg, rgba(45, 55, 72, 0.82) 0%, rgba(192, 86, 33, 0.55) 100%),
-    url("https://www.nutrifarmer.kr/wp-content/themes/fse-solar-power/assets/images/auth-bg.jpg") center/cover no-repeat,
-    #2d3748;
-  animation: nfAuthFade 1.2s ease;
+  background: linear-gradient(135deg, #0f2744 0%, #1a5fa8 45%, #c05621 100%);
+  animation: nfAuthFade 0.2s ease;
 }
 
 @keyframes nfAuthFade {

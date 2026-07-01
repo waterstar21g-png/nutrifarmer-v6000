@@ -49,7 +49,10 @@ export function MobileShell({
       .catch(() => undefined);
   }, [router]);
 
-  useEffect(() => { refreshAuth(); }, [refreshAuth, pathname]);
+  useEffect(() => {
+    if (isLogin) return;
+    refreshAuth();
+  }, [refreshAuth, pathname, isLogin]);
 
   useEffect(() => {
     if (isLogin) return;

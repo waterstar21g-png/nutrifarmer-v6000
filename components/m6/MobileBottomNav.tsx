@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 
@@ -35,7 +36,10 @@ export function MobileBottomNav() {
       {navLink('/theme', isTheme, '🎨', '테마')}
       {navLink('/upload', isUpload, '📷', '사진올리기')}
       {navLink('/write', isWrite, '✍️', '글쓰기')}
-      {navLink('/login', isAccount, '👤', '계정')}
+      <Link href="/login" prefetch={false} className={`m6-bottom-nav__item${isAccount ? ' is-active' : ''}`}>
+        <span className="m6-bottom-nav__icon" aria-hidden>👤</span>
+        <span>계정</span>
+      </Link>
     </nav>
   );
 }

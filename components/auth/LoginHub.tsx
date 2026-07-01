@@ -67,7 +67,6 @@ export function LoginHub() {
   const [notice, setNotice] = useState('');
   const [noticeType, setNoticeType] = useState<'error' | 'info' | 'success'>('error');
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
 
   const showNotice = useCallback((msg: string, type: 'error' | 'info' | 'success' = 'error') => {
     setNotice(msg);
@@ -91,15 +90,16 @@ export function LoginHub() {
   }, [searchParams, showNotice]);
 
   useEffect(() => {
-    fetch(`${AUTH_API}/me`)
+    let cancelled = false;
+    fetch(`${AUTH_API}/me`, { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => {
-        if (data.loggedIn) {
-          navigateAfterLogin(redirectTo);
-          return;
-        }
+        if (!cancelled && data.loggedIn) navigateAfterLogin(redirectTo);
       })
-      .finally(() => setChecking(false));
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
   }, [redirectTo]);
 
   useEffect(() => {
@@ -267,14 +267,6 @@ export function LoginHub() {
     } finally {
       setLoading(false);
     }
-  }
-
-  if (checking) {
-    return (
-      <div className="nf-auth-scene">
-        <div className="nf-auth-card"><p className="nf-auth-lead">로그인 확인 중…</p></div>
-      </div>
-    );
   }
 
   const panelOpen = panel !== 'login';
