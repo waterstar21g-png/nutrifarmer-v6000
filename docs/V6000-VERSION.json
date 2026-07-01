@@ -10,7 +10,7 @@
   "github": "https://github.com/waterstar21g-png/nutrifarmer-v6000",
   "wwwSynced": true,
   "abcSynced": true,
-  "summary": "V6.1 — V7000 쓰기·사진 AI 통합, 6탭 네비, 테마 뷰, 10분 유휴 세션",
+  "summary": "V6.1.0.1 — 로그인 DB/세션 오류 수정, 단일글 ⋮ 삭제·수정, 상단 태그 숨김",
   "localPath": "D:/함께온라인/My_BLOG/nutrifarmer-v6000",
   "devPort": 6000,
   "updatedAt": "2026-07-01T00:00:00+09:00"
