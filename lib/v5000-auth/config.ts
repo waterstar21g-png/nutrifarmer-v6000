@@ -109,10 +109,15 @@ export function postLoginRedirectPath(): string {
 export function resolveRedirectPath(raw?: string | null): string {
   if (!raw) return POST_LOGIN_REDIRECT;
   try {
-    if (raw.startsWith('/')) return raw.split('?')[0] || POST_LOGIN_REDIRECT;
-    const url = new URL(raw);
-    const site = new URL(SITE_URL);
-    if (url.origin === site.origin) return url.pathname || POST_LOGIN_REDIRECT;
+    let path = POST_LOGIN_REDIRECT;
+    if (raw.startsWith('/')) path = raw.split('?')[0] || POST_LOGIN_REDIRECT;
+    else {
+      const url = new URL(raw);
+      const site = new URL(SITE_URL);
+      if (url.origin === site.origin) path = url.pathname || POST_LOGIN_REDIRECT;
+    }
+    if (path === '/login' || path.startsWith('/login/')) return POST_LOGIN_REDIRECT;
+    return path;
   } catch {
     /* ignore */
   }

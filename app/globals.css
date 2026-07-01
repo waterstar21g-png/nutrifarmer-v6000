@@ -42,6 +42,11 @@ img { max-width: 100%; height: auto; display: block; }
   padding-bottom: calc(var(--m6-nav-h) + var(--m6-safe-bottom));
 }
 
+.m6-app--login {
+  padding-bottom: 0;
+  background: linear-gradient(135deg, #0f2744 0%, #1a5fa8 45%, #c05621 100%);
+}
+
 .m6-main {
   flex: 1;
   width: 100%;
@@ -565,7 +570,8 @@ img { max-width: 100%; height: auto; display: block; }
 .m6-login-wrap {
   max-width: 480px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0;
+  min-height: 100dvh;
 }
 
 @media (min-width: 768px) {
