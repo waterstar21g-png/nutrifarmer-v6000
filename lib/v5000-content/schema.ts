@@ -24,6 +24,22 @@ export const v5000Posts = pgTable('v5000_posts', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+/** 수정·삭제 수행 계정 기록 (V6.1 개발 단계 — 향후 등급별 권한과 연동) */
+export const v5000PostActions = pgTable('v5000_post_actions', {
+  id: serial('id').primaryKey(),
+  postId: integer('post_id')
+    .notNull()
+    .references(() => v5000Posts.id, { onDelete: 'cascade' }),
+  actorUserId: integer('actor_user_id')
+    .notNull()
+    .references(() => v5000Users.id, { onDelete: 'cascade' }),
+  authorUserId: integer('author_user_id')
+    .notNull()
+    .references(() => v5000Users.id, { onDelete: 'cascade' }),
+  action: varchar('action', { length: 20 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const v5000Media = pgTable('v5000_media', {
   id: serial('id').primaryKey(),
   r2Key: varchar('r2_key', { length: 512 }).notNull(),
@@ -65,6 +81,7 @@ export const v5000Comments = pgTable('v5000_comments', {
 
 export type V5000PostRow = typeof v5000Posts.$inferSelect;
 export type NewV5000PostRow = typeof v5000Posts.$inferInsert;
+export type V5000PostActionRow = typeof v5000PostActions.$inferSelect;
 export type V5000MediaRow = typeof v5000Media.$inferSelect;
 export type V5000MediaMirrorRow = typeof v5000MediaMirror.$inferSelect;
 export type V5000CommentRow = typeof v5000Comments.$inferSelect;

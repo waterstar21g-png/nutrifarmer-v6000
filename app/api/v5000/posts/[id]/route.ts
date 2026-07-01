@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { canEditPost, requireSession, withDatabase } from '@/lib/v5000-content/api';
+import { logPostAction } from '@/lib/v5000-content/post-actions';
 import { deletePost, findPostById, toPostDto, updatePost } from '@/lib/v5000-content/posts';
 import { postErrorMessage, validatePostInput } from '@/lib/v5000-content/validate';
 
@@ -94,6 +95,12 @@ export async function PUT(req: NextRequest, ctx: RouteCtx) {
     if (!row) {
       return NextResponse.json({ ok: false, code: 'not_found', message: postErrorMessage('not_found') }, { status: 404 });
     }
+    await logPostAction({
+      postId: id,
+      actorUserId: session.userId,
+      authorUserId: existing.authorId,
+      action: 'edit',
+    });
     return NextResponse.json({ ok: true, post: toPostDto(row) });
   });
 
@@ -118,6 +125,12 @@ export async function DELETE(_req: NextRequest, ctx: RouteCtx) {
     if (!canEditPost(session, existing.authorId)) {
       return NextResponse.json({ ok: false, code: 'forbidden', message: postErrorMessage('forbidden') }, { status: 403 });
     }
+    await logPostAction({
+      postId: id,
+      actorUserId: session.userId,
+      authorUserId: existing.authorId,
+      action: 'delete',
+    });
     await deletePost(id);
     return NextResponse.json({ ok: true });
   });

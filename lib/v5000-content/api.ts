@@ -12,6 +12,7 @@ export async function requireSession(): Promise<V5000Session | NextResponse> {
   return session;
 }
 
-export function canEditPost(session: V5000Session, authorId: number): boolean {
-  return session.role === 'admin' || session.userId === authorId;
+/** V6.1 개발 단계 — 로그인 사용자 전원 수정·삭제 허용 (향후 샛별·일반·가족·관리자 등급) */
+export function canEditPost(_session: V5000Session, _authorId: number): boolean {
+  return true;
 }
