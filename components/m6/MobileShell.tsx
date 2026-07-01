@@ -27,13 +27,13 @@ export function MobileShell({
       .then(async r => {
         const data = await r.json();
         if (data.code === 'session_idle') {
-          router.push('/login?reason=idle');
+          setUserName(null);
           return;
         }
         setUserName(data.loggedIn ? data.user?.name ?? '회원' : null);
       })
       .catch(() => setUserName(null));
-  }, [router]);
+  }, []);
 
   const touchSession = useCallback(() => {
     const now = Date.now();
@@ -43,11 +43,11 @@ export function MobileShell({
       .then(async r => {
         if (r.status === 401) {
           const data = await r.json();
-          if (data.code === 'session_idle') router.push('/login?reason=idle');
+          if (data.code === 'session_idle') setUserName(null);
         }
       })
       .catch(() => undefined);
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     if (isLogin) return;
@@ -89,7 +89,7 @@ export function MobileShell({
           <input name="q" type="search" placeholder="검색" aria-label="검색" />
         </form>
         {userName ? (
-          <span className="m6-header__auth" title={userName}>{userName.slice(0, 4)}</span>
+          <Link href="/login" className="m6-header__auth" title={userName}>{userName.slice(0, 4)}</Link>
         ) : (
           <Link href="/login" className="m6-header__auth">로그인</Link>
         )}

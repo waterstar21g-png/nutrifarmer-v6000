@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { navigateAfterLogin, navigateToHomeFromLogin } from '@/lib/auth-navigation';
+import { finishAuthNavigation } from '@/lib/auth-navigation';
 import {
   AUTH_ID_LABEL,
   FIND_HEADING,
@@ -19,11 +19,19 @@ import {
   VERIFY_LEAD,
   loginErrorMessage,
   resolveRedirectPath,
+  userMemberGradeLabel,
 } from '@/lib/auth-config';
 
 const AUTH_API = '/api/v5000/auth';
 
 type Panel = 'login' | 'find' | 'lost' | 'verify' | 'reset' | 'register';
+
+interface MeUser {
+  name: string;
+  loginId: string;
+  role: string;
+  publishedPostCount: number;
+}
 
 interface PickUser {
   id: number;
@@ -67,6 +75,15 @@ export function LoginHub() {
   const [notice, setNotice] = useState('');
   const [noticeType, setNoticeType] = useState<'error' | 'info' | 'success'>('error');
   const [loading, setLoading] = useState(false);
+  const [meUser, setMeUser] = useState<MeUser | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
+
+  const finishAuth = useCallback((target = redirectTo) => {
+    finishAuthNavigation((path) => {
+      router.replace(path);
+      router.refresh();
+    }, target);
+  }, [router, redirectTo]);
 
   const showNotice = useCallback((msg: string, type: 'error' | 'info' | 'success' = 'error') => {
     setNotice(msg);
@@ -94,17 +111,47 @@ export function LoginHub() {
     fetch(`${AUTH_API}/me`, { credentials: 'same-origin' })
       .then(r => r.json())
       .then(data => {
-        if (!cancelled && data.loggedIn) navigateAfterLogin(redirectTo);
+        if (cancelled) return;
+        if (data.loggedIn && data.user) {
+          setMeUser({
+            name: data.user.name ?? '회원',
+            loginId: data.user.loginId ?? '',
+            role: data.user.role ?? 'author',
+            publishedPostCount: data.user.publishedPostCount ?? 0,
+          });
+          return;
+        }
+        setMeUser(null);
+        if (data.code === 'session_idle' || searchParams.get('reason') === 'idle') {
+          showNotice(loginErrorMessage('session_idle'), 'info');
+        }
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (!cancelled) setMeUser(null);
+      })
+      .finally(() => {
+        if (!cancelled) setSessionReady(true);
+      });
     return () => {
       cancelled = true;
     };
-  }, [redirectTo]);
+  }, [searchParams, showNotice]);
 
   useEffect(() => {
     setNotice('');
   }, [panel]);
+
+  async function handleLogout() {
+    setLoading(true);
+    try {
+      await fetch(`${AUTH_API}/logout`, { method: 'POST', credentials: 'same-origin' });
+      setMeUser(null);
+      showNotice('로그아웃되었습니다.', 'success');
+      router.refresh();
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -123,7 +170,7 @@ export function LoginHub() {
       });
       const data = await res.json();
       if (data.ok) {
-        navigateAfterLogin(redirectTo);
+        finishAuth(redirectTo);
         return;
       }
       if (data.code === 'must_reset_password') {
@@ -258,7 +305,7 @@ export function LoginHub() {
       });
       const data = await res.json();
       if (data.ok) {
-        navigateAfterLogin(redirectTo);
+        finishAuth(redirectTo);
         return;
       }
       showNotice(data.message ?? loginErrorMessage(data.code), 'error');
@@ -275,7 +322,37 @@ export function LoginHub() {
     <div className="nf-auth-scene">
       <div className={`nf-auth-dual-shell${panelOpen ? ' is-panel-open' : ''}`}>
         {/* ── 로그인 카드 ── */}
-        {panel === 'login' && (
+        {panel === 'login' && meUser && sessionReady && (
+          <div className="nf-auth-card nf-auth-card--login">
+            <div className="nf-auth-card-header">
+              <span className="nf-auth-badge">👤 내 계정</span>
+              <h1>{meUser.name}님</h1>
+              <p className="nf-auth-lead">
+                {userMemberGradeLabel(meUser.role, meUser.publishedPostCount)} · {meUser.loginId}
+              </p>
+            </div>
+            {notice && <div className={`nf-auth-notice nf-auth-notice--${noticeType}`} role="alert">{notice}</div>}
+            <div className="nf-auth-logged-in-actions">
+              <button type="button" className="nf-auth-submit" onClick={() => finishAuth(redirectTo)}>
+                홈으로
+              </button>
+              <button type="button" className="nf-auth-logout" onClick={handleLogout} disabled={loading}>
+                {loading ? '처리 중…' : '로그아웃'}
+              </button>
+            </div>
+            <div className="nf-auth-links">
+              <button type="button" className="nf-auth-link-btn" onClick={() => goPanel('lost')}>비밀번호 변경</button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'login' && !meUser && !sessionReady && (
+          <div className="nf-auth-card nf-auth-card--login">
+            <p className="nf-auth-lead">확인 중…</p>
+          </div>
+        )}
+
+        {panel === 'login' && !meUser && sessionReady && (
           <div className="nf-auth-card nf-auth-card--login">
             <div className="nf-auth-card-header">
               <span className="nf-auth-badge">✨ 개인홈페이지형 블로그</span>
@@ -344,7 +421,7 @@ export function LoginHub() {
               <button type="button" className="nf-auth-link-btn" onClick={() => goPanel('register')}>회원가입</button>
             </p>
             <div className="nf-auth-links">
-              <button type="button" className="nf-auth-link-btn" onClick={() => navigateToHomeFromLogin()}>
+              <button type="button" className="nf-auth-link-btn" onClick={() => finishAuth('/')}>
                 ← 홈으로
               </button>
             </div>

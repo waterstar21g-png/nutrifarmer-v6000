@@ -77,6 +77,21 @@ function closeSelfOrNavigate(fallbackUrl: string): void {
   }, 150);
 }
 
+/** 로그인·가입 성공 — 팝업이면 opener 갱신, 아니면 앱 내 라우터 전환 */
+export function finishAuthNavigation(
+  navigate: (target: string) => void,
+  target = POST_LOGIN_REDIRECT,
+): void {
+  if (typeof window === 'undefined') return;
+
+  if (isLoginPopup()) {
+    navigateAfterLogin(target);
+    return;
+  }
+
+  navigate(target);
+}
+
 /** 로그인·가입 성공 — 메인은 기존 창(opener)에, 팝업이면 닫기 */
 export function navigateAfterLogin(target = POST_LOGIN_REDIRECT): void {
   if (typeof window === 'undefined') return;
