@@ -72,3 +72,21 @@ export async function publishPost(input: {
   const data = await parseJson<{ post: PublishedPost }>(r);
   return data.post;
 }
+
+export async function updatePostBody(id: number, body: string): Promise<void> {
+  const r = await fetch(`/api/v5000/posts/${id}`, {
+    method: 'PUT',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ body }),
+  });
+  await parseJson(r);
+}
+
+export async function deletePost(id: number): Promise<void> {
+  const r = await fetch(`/api/v5000/posts/${id}`, {
+    method: 'DELETE',
+    credentials: 'same-origin',
+  });
+  await parseJson(r);
+}

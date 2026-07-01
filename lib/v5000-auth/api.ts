@@ -24,7 +24,9 @@ function isTransientDbError(err: unknown): boolean {
     lower.includes('429') ||
     lower.includes('too many connections') ||
     lower.includes('57p01') ||
-    lower.includes('neon')
+    lower.includes('neon') ||
+    lower.includes('prepared statement') ||
+    lower.includes('pgbouncer')
   );
 }
 

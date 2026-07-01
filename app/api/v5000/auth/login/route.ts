@@ -120,8 +120,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const redirectPath = loginRedirectPath();
-    const remember = !!body.remember;
+    return { user, remember: !!body.remember };
+  });
+
+  if (result instanceof NextResponse) return result;
+
+  try {
+    const { user, remember } = result;
     const token = encodeSession(
       {
         userId: user.id,
@@ -133,14 +138,17 @@ export async function POST(req: NextRequest) {
       remember,
     );
 
-    const response = NextResponse.json({ ok: true, redirect: redirectPath });
+    const response = NextResponse.json({ ok: true, redirect: loginRedirectPath() });
     response.cookies.set(SESSION_COOKIE, token, {
       ...SESSION_COOKIE_OPTS,
       maxAge: sessionMaxAge(remember),
     });
     return response;
-  });
-
-  if (result instanceof NextResponse) return result;
-  return result;
+  } catch (err) {
+    console.error('[v5000-auth/login] session encode failed', err);
+    return NextResponse.json(
+      { ok: false, code: 'session_error', message: loginErrorMessage('session_expired') },
+      { status: 500 },
+    );
+  }
 }

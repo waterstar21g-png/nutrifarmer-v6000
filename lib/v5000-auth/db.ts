@@ -7,12 +7,14 @@ const schema = { ...authSchema, ...contentSchema };
 
 let dbInstance: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
+/** neon-http 드라이버는 non-pooling URL 우선 (pgbouncer URL은 간헐적 오류 유발) */
 const URL_ENV_KEYS = [
-  'POSTGRES_PRISMA_URL',
+  'POSTGRES_URL_NON_POOLING',
+  'DATABASE_URL_UNPOOLED',
+  'NEON_DATABASE_URL',
   'POSTGRES_URL',
   'DATABASE_URL',
-  'POSTGRES_URL_NON_POOLING',
-  'NEON_DATABASE_URL',
+  'POSTGRES_PRISMA_URL',
 ] as const;
 
 function normalizePostgresUrl(raw: string): string {
