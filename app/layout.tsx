@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import { MobileShell } from '@/components/m6/MobileShell';
+import { appVersionLabel } from '@/lib/app-version';
 
 const notoSans = Noto_Sans_KR({
   weight: ['400', '500', '700'],
@@ -29,10 +30,17 @@ export const viewport: Viewport = {
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={notoSans.variable}>
+      <head>
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
+        <meta name="app-version" content={appVersionLabel()} />
+      </head>
       <body className="m6-body">
         <MobileShell>{children}</MobileShell>
       </body>

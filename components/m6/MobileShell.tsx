@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MobileBottomNav } from './MobileBottomNav';
+import { appVersionLabel } from '@/lib/app-version';
 
 const AUTH_API = '/api/v5000/auth';
 const TOUCH_INTERVAL_MS = 2 * 60 * 1000;
@@ -75,7 +76,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="m6-app">
       <header className="m6-header">
-        <Link href="/" className="m6-header__brand">탁월한 찬사 · V6.1.0.4</Link>
+        <Link href="/" className="m6-header__brand">탁월한 찬사 · {appVersionLabel()}</Link>
         <form className="m6-header__search" onSubmit={onSearch}>
           <input name="q" type="search" placeholder="검색" aria-label="검색" />
         </form>
