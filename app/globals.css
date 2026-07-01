@@ -355,6 +355,177 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* 단일글 */
+.m6-single-header {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.m6-single-header__title {
+  margin: 0;
+  padding-right: 2.25rem;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.m6-single-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.m6-single-menu__btn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--m6-text);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.m6-single-menu__btn:active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.m6-single-menu__dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  min-width: 7rem;
+  margin-top: 0.25rem;
+  padding: 0.35rem 0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.m6-single-menu__dropdown button {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m6-text);
+  cursor: pointer;
+}
+
+.m6-single-menu__dropdown button.is-danger {
+  color: #c0392b;
+}
+
+.m6-single-menu__dropdown button:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.m6-single-author {
+  margin: 1.25rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--m6-muted);
+}
+
+.m6-single-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.m6-single-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+.m6-single-popup__panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 22rem);
+  padding: 1.1rem;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+.m6-single-popup__title {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.m6-single-popup__msg {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--m6-muted);
+}
+
+.m6-single-popup__textarea {
+  width: 100%;
+  min-height: 10rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.m6-single-popup__error {
+  margin: 0.5rem 0 0;
+  font-size: 0.8125rem;
+  color: #c0392b;
+}
+
+.m6-single-popup__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.m6-single-popup__btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.m6-single-popup__btn--primary {
+  border-color: var(--m6-primary);
+  background: var(--m6-primary);
+  color: #fff;
+}
+
+.m6-single-popup__btn--danger {
+  border-color: #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.m6-single-popup__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .m6-single-banner {
   margin: -0.75rem -1rem 1rem;
   padding: 1rem;
