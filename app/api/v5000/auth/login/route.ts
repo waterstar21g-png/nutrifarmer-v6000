@@ -5,6 +5,7 @@ import {
   SESSION_COOKIE,
   SESSION_COOKIE_OPTS,
 } from '@/lib/v5000-auth/config';
+import { isDatabaseConfigured } from '@/lib/v5000-auth/db';
 import { withDatabase } from '@/lib/v5000-auth/api';
 import { verifyPassword } from '@/lib/v5000-auth/password';
 import { encodeSession, sessionMaxAge } from '@/lib/v5000-auth/session';
@@ -13,14 +14,32 @@ import {
   formatPickUser,
   lookupUsersByLogin,
 } from '@/lib/v5000-auth/users';
+import type { V5000User } from '@/lib/v5000-auth/schema';
 
 export const dynamic = 'force-dynamic';
+
+function authConfigResponse() {
+  return NextResponse.json(
+    { ok: false, code: 'auth_unconfigured', message: loginErrorMessage('auth_unconfigured') },
+    { status: 503 },
+  );
+}
 
 function loginRedirectPath(): string {
   return postLoginRedirectPath();
 }
 
 export async function POST(req: NextRequest) {
+  if (!isDatabaseConfigured()) {
+    return NextResponse.json(
+      { ok: false, code: 'database_unconfigured', message: loginErrorMessage('database_unconfigured') },
+      { status: 503 },
+    );
+  }
+  if (!process.env.AUTH_SESSION_SECRET?.trim() && process.env.NODE_ENV === 'production') {
+    return authConfigResponse();
+  }
+
   let body: {
     login?: string;
     password?: string;
@@ -49,7 +68,7 @@ export async function POST(req: NextRequest) {
   }
 
   const result = await withDatabase(async () => {
-    let user = null;
+    let user: V5000User | null = null;
 
     if (body.pick_user) {
       user = await findUserById(body.pick_user);
@@ -120,27 +139,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const redirectPath = loginRedirectPath();
-    const remember = !!body.remember;
-    const token = encodeSession(
-      {
-        userId: user.id,
-        role: user.role,
-        loginId: user.loginId,
-        displayName: user.displayName,
-        remember,
-      },
-      remember,
-    );
-
-    const response = NextResponse.json({ ok: true, redirect: redirectPath });
-    response.cookies.set(SESSION_COOKIE, token, {
-      ...SESSION_COOKIE_OPTS,
-      maxAge: sessionMaxAge(remember),
-    });
-    return response;
+    return { user, remember: !!body.remember };
   });
 
   if (result instanceof NextResponse) return result;
-  return result;
+
+  const { user, remember } = result;
+  const redirectPath = loginRedirectPath();
+  const token = encodeSession(
+    {
+      userId: user.id,
+      role: user.role,
+      loginId: user.loginId,
+      displayName: user.displayName,
+      remember,
+    },
+    remember,
+  );
+
+  const response = NextResponse.json({ ok: true, redirect: redirectPath });
+  response.cookies.set(SESSION_COOKIE, token, {
+    ...SESSION_COOKIE_OPTS,
+    maxAge: sessionMaxAge(remember),
+  });
+  return response;
 }

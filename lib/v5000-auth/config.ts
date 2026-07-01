@@ -68,6 +68,7 @@ export const LOGIN_ERRORS: Record<string, string> = {
   session_idle: '10분 이상 미사용으로 로그인이 만료되었습니다. 다시 로그인해 주세요.',
   database_unconfigured: '데이터베이스가 설정되지 않았습니다. 관리자에게 문의해 주세요.',
   database_error: '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+  auth_unconfigured: '인증 설정이 완료되지 않았습니다. 관리자에게 문의해 주세요.',
 };
 
 export function loginErrorMessage(code?: string): string {

@@ -5,6 +5,7 @@ import {
   SESSION_COOKIE,
   SESSION_COOKIE_OPTS,
 } from '@/lib/v5000-auth/config';
+import { isDatabaseConfigured } from '@/lib/v5000-auth/db';
 import { withDatabase } from '@/lib/v5000-auth/api';
 import { encodeSession, sessionMaxAge } from '@/lib/v5000-auth/session';
 import {
@@ -17,6 +18,19 @@ import {
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  if (!isDatabaseConfigured()) {
+    return NextResponse.json(
+      { ok: false, code: 'database_unconfigured', message: loginErrorMessage('database_unconfigured') },
+      { status: 503 },
+    );
+  }
+  if (!process.env.AUTH_SESSION_SECRET?.trim() && process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { ok: false, code: 'auth_unconfigured', message: loginErrorMessage('auth_unconfigured') },
+      { status: 503 },
+    );
+  }
+
   let body: Record<string, string | undefined>;
   try {
     body = await req.json();
@@ -74,27 +88,29 @@ export async function POST(req: NextRequest) {
     }
 
     const user = await createUser(validated.data);
-    const redirectPath = postLoginRedirectPath();
-    const token = encodeSession({
-      userId: user.id,
-      role: user.role,
-      loginId: user.loginId,
-      displayName: user.displayName,
-    });
-
-    const response = NextResponse.json({
-      ok: true,
-      redirect: redirectPath,
-      welcome_id: user.loginId,
-      welcome_name: user.displayName,
-    });
-    response.cookies.set(SESSION_COOKIE, token, {
-      ...SESSION_COOKIE_OPTS,
-      maxAge: sessionMaxAge(false),
-    });
-    return response;
+    return { user };
   });
 
   if (result instanceof NextResponse) return result;
-  return result;
+
+  const { user } = result;
+  const redirectPath = postLoginRedirectPath();
+  const token = encodeSession({
+    userId: user.id,
+    role: user.role,
+    loginId: user.loginId,
+    displayName: user.displayName,
+  });
+
+  const response = NextResponse.json({
+    ok: true,
+    redirect: redirectPath,
+    welcome_id: user.loginId,
+    welcome_name: user.displayName,
+  });
+  response.cookies.set(SESSION_COOKIE, token, {
+    ...SESSION_COOKIE_OPTS,
+    maxAge: sessionMaxAge(false),
+  });
+  return response;
 }

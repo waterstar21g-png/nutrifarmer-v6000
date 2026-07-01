@@ -8,9 +8,9 @@ const schema = { ...authSchema, ...contentSchema };
 let dbInstance: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
 const URL_ENV_KEYS = [
-  'POSTGRES_PRISMA_URL',
-  'POSTGRES_URL',
   'DATABASE_URL',
+  'POSTGRES_URL',
+  'POSTGRES_PRISMA_URL',
   'POSTGRES_URL_NON_POOLING',
   'NEON_DATABASE_URL',
 ] as const;
@@ -21,7 +21,7 @@ function normalizePostgresUrl(raw: string): string {
     if (!u.searchParams.has('connect_timeout')) {
       u.searchParams.set('connect_timeout', '15');
     }
-    if (process.env.NODE_ENV !== 'production' && u.searchParams.get('channel_binding') === 'require') {
+    if (u.searchParams.get('channel_binding') === 'require') {
       u.searchParams.delete('channel_binding');
     }
     if (!u.searchParams.has('sslmode')) {

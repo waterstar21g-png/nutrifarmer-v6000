@@ -64,6 +64,29 @@ export async function findPublishedPostById(id: number): Promise<V5000PostRow | 
   return rows[0] ?? null;
 }
 
+export async function findPublishedPostWithAuthor(opts: {
+  id?: number;
+  slug?: string;
+}): Promise<V5000PostWithAuthor | null> {
+  const db = getDb();
+  const filters = [eq(v5000Posts.status, 'publish')];
+  if (opts.id) filters.push(eq(v5000Posts.id, opts.id));
+  else if (opts.slug) filters.push(eq(v5000Posts.slug, opts.slug));
+  else return null;
+
+  const rows = await db
+    .select({
+      ...getTableColumns(v5000Posts),
+      authorDisplayName: v5000Users.displayName,
+    })
+    .from(v5000Posts)
+    .innerJoin(v5000Users, eq(v5000Posts.authorId, v5000Users.id))
+    .where(and(...filters))
+    .orderBy(desc(v5000Posts.publishedAt), desc(v5000Posts.updatedAt))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function listPublishedByCategory(categorySlug: string, limit = 100): Promise<V5000PostRow[]> {
   const db = getDb();
   return db

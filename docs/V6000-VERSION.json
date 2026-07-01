@@ -1,6 +1,6 @@
 {
   "scheme": "V6.MAJOR.MINOR.PATCH — V6000 mobile shipped release",
-  "version": "6.1.0.0",
+  "version": "6.1.0.1",
   "label": "V6.1.0.0",
   "parent": "V6.0.0.2",
   "commit": "c974382",

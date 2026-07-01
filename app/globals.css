@@ -355,6 +355,137 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* 단일글 */
+.m6-single {
+  position: relative;
+}
+
+.m6-single__toolbar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+}
+
+.m6-single__menu-btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--m6-text);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(15, 39, 68, 0.12);
+}
+
+.m6-single__menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  min-width: 6.5rem;
+  background: var(--m6-surface);
+  border: 1px solid var(--m6-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(15, 39, 68, 0.12);
+  overflow: hidden;
+}
+
+.m6-single__menu button {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m6-text);
+  cursor: pointer;
+}
+
+.m6-single__menu button.is-danger { color: #b91c1c; }
+.m6-single__menu button:hover { background: #f8fafc; }
+
+.m6-single__title {
+  margin: 0 0 0.85rem;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.m6-single__byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--m6-border);
+  font-size: 0.8125rem;
+  color: var(--m6-muted);
+}
+
+.m6-single__byline span { font-weight: 700; color: var(--m6-text); }
+
+.m6-single__error {
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  color: #b91c1c;
+}
+
+.m6-single-edit {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.m6-single-edit__backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(15, 39, 68, 0.45);
+  cursor: pointer;
+}
+
+.m6-single-edit__panel {
+  position: relative;
+  width: min(100%, 22rem);
+  background: var(--m6-surface);
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 8px 32px rgba(15, 39, 68, 0.2);
+}
+
+.m6-single-edit__title {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.m6-single-edit__area {
+  width: 100%;
+  min-height: 10rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--m6-border);
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.m6-single-edit__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
 .m6-single-banner {
   margin: -0.75rem -1rem 1rem;
   padding: 1rem;
