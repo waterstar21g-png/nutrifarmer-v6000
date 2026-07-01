@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ALL_CATEGORY_SLUGS } from '@/lib/site-data';
 import { listPublishedByCategory } from '@/lib/v5000-content/posts';
 import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-posts';
 import { rewriteHtmlMediaUrls } from '@/lib/v5000-content/media-mirror';
@@ -15,7 +14,7 @@ interface Props {
 }
 
 export function generateStaticParams() {
-  return ALL_CATEGORY_SLUGS.map(category => ({ category }));
+  return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
