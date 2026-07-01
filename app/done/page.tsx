@@ -4,7 +4,7 @@ import { DoneClient } from '@/components/m7/DoneClient';
 
 export const metadata: Metadata = {
   title: '게시 완료',
-  description: 'V7000 게시 결과',
+  description: 'V6.1 게시 결과',
 };
 
 export default function DonePage() {

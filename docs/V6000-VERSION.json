@@ -1,17 +1,17 @@
 {
   "scheme": "V6.MAJOR.MINOR.PATCH — V6000 mobile shipped release",
-  "version": "6.0.0.2",
-  "label": "V6.0.0.2",
-  "parent": "V5.0.0.20",
-  "commit": "3e09040",
+  "version": "6.1.0.0",
+  "label": "V6.1.0.0",
+  "parent": "V6.0.0.2",
+  "commit": "c974382",
   "deploymentId": "dpl_2KcQw7Q2qFGZNYbdXqpDEtvJkQkv",
   "www": "https://m.nutrifarmer.kr",
   "wwwFallback": "https://nutrifarmer-v6000.vercel.app",
   "github": "https://github.com/waterstar21g-png/nutrifarmer-v6000",
   "wwwSynced": true,
   "abcSynced": true,
-  "summary": "m.nutrifarmer.kr live — DNS A 76.76.21.21, V6000 mobile posts OK",
+  "summary": "V6.1 — 모바일 쓰기·사진 AI 통합, 6탭 네비, 테마 뷰, 10분 유휴 세션",
   "localPath": "D:/함께온라인/My_BLOG/nutrifarmer-v6000",
   "devPort": 6000,
-  "updatedAt": "2026-06-29T04:00:00+09:00"
+  "updatedAt": "2026-07-01T00:00:00+09:00"
 }

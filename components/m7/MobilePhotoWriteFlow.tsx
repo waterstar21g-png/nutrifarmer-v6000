@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 import type { VisionDraftResult } from '@/lib/ai-vision-draft';
-import { readAutoMode } from '@/lib/v7000-auto-mode';
-import { menuTitleForMode, PHOTO_FLOW_STEPS, postReadUrl, type PhotoFlowMode } from '@/lib/v7000-config';
-import { saveLastPost } from '@/lib/v7000-last-post';
-import { publishPost, requestVisionDraft, uploadPhoto } from '@/lib/v7000-client';
+import { readAutoMode } from '@/lib/v6000-auto-mode';
+import { menuTitleForMode, PHOTO_FLOW_STEPS, postReadUrl, type PhotoFlowMode } from '@/lib/v6000-write-config';
+import { saveLastPost } from '@/lib/v6000-last-post';
+import { publishPost, requestVisionDraft, uploadPhoto } from '@/lib/v6000-write-client';
 import { FlowChrome } from './FlowChrome';
 
 type Step = 'pick' | 'confirm' | 'ai' | 'review';

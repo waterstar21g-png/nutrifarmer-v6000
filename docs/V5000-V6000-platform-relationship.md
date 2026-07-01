@@ -51,7 +51,7 @@ V5000에서 게시한 글은 V6000에도 보인다. 로그인·DB·미디어는 
 |------|--------|--------|
 | 레이아웃·CSS | `app/globals.css`, 데스크톱 컴포넌트 | `app/globals.css`, `components/m6/*` |
 | 네비·히어로·8칸 | SiteHeader, HeroSlider 등 | MobileShell, BottomNav |
-| 글쓰기 UI | `/write` WriteEditor | `/write` → www 링크 (현재) |
+| 글쓰기 UI | `/write` WriteEditor | `/write`, `/photo`, `/text` 모바일 AI 플로우 (V6.1) |
 | 배포·도메인 | www | m |
 
 **SR·CHANGELOG 표기:** `V5000만` 또는 `V6000만`
