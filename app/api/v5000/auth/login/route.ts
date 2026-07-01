@@ -157,7 +157,11 @@ export async function POST(req: NextRequest) {
     remember,
   );
 
-  const response = NextResponse.json({ ok: true, redirect: redirectPath });
+  const response = NextResponse.json({
+    ok: true,
+    redirect: redirectPath,
+    user: { name: user.displayName, loginId: user.loginId },
+  });
   response.cookies.set(SESSION_COOKIE, token, {
     ...SESSION_COOKIE_OPTS,
     maxAge: sessionMaxAge(remember),

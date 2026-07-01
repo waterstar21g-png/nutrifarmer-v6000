@@ -85,8 +85,13 @@ export function LoginHub() {
       navigateAfterLogin(target);
       return;
     }
-    window.location.assign(target);
-  }, [redirectTo]);
+    router.replace(target);
+    router.refresh();
+  }, [redirectTo, router]);
+
+  useEffect(() => {
+    router.prefetch('/');
+  }, [router]);
 
   const showNotice = useCallback((msg: string, type: 'error' | 'info' | 'success' = 'error') => {
     setNotice(msg);
@@ -161,8 +166,6 @@ export function LoginHub() {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch(`${AUTH_API}/logout`, { method: 'POST' });
-
       const res = await fetch(`${AUTH_API}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -410,7 +413,7 @@ export function LoginHub() {
                 로그인 상태 유지
               </label>
               <button type="submit" className="nf-auth-submit" disabled={loading}>
-                {loading ? '확인 중…' : '로그인'}
+                {loading ? '로그인 중…' : '로그인'}
               </button>
             </form>
 
