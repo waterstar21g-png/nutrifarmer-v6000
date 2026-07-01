@@ -22,7 +22,7 @@ export function MobilePostCard({ post, currentUserId }: Props) {
         isOwner={isOwner}
         variant="card"
       />
-      <Link href={href} className="m6-post-card">
+      <Link href={href} className="m6-post-card" prefetch={false}>
         <div className="m6-post-card__thumb">
           {post.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element

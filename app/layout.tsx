@@ -27,6 +27,9 @@ export const viewport: Viewport = {
   themeColor: '#0f2744',
 };
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" className={notoSans.variable}>
