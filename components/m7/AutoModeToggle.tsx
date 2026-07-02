@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { readAutoMode, toggleAutoMode } from '@/lib/v7000-auto-mode';
+import { readAutoMode, toggleAutoMode } from '@/lib/v6000-write-auto-mode';
 
 interface Props {
   compact?: boolean;

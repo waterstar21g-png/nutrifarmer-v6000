@@ -1,7 +1,7 @@
 'use client';
 
-import type { PhotoFlowMode } from '@/lib/v7000-config';
-import { photoReturnPath } from '@/lib/v7000-flow-draft';
+import type { PhotoFlowMode } from '@/lib/v6000-write-config';
+import { photoReturnPath } from '@/lib/v6000-write-draft';
 import { WriteGate } from '@/components/auth/WriteGate';
 import { MobilePhotoWriteFlow } from './MobilePhotoWriteFlow';
 

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { WriteHubMenu } from '@/components/m7/WriteHubMenu';
+import { UploadPageGate } from '@/components/m7/UploadPageGate';
 
 export const metadata: Metadata = {
   title: '사진올리기',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function UploadPage() {
-  return <WriteHubMenu />;
+  return <UploadPageGate />;
 }

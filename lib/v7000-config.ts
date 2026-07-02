@@ -1,45 +1,16 @@
-/** V6.1 mobile write — constants (from V7000) */
-
-export const V7000_AUTO_MODE_KEY = 'nf-v7000-auto-mode';
-export const V7000_LAST_POST_KEY = 'nf-v7000-last-post';
-
-export type PhotoFlowMode = 'single' | 'continuous' | 'multi';
-
-export interface V7000LastPost {
-  id: number;
-  slug: string;
-  categorySlug: string;
-  title: string;
-  at: number;
-}
-
-export interface V7000MenuItem {
-  id: number;
-  title: string;
-  desc: string;
-  href?: string;
-  action?: 'auto-toggle' | 'last-post';
-  external?: boolean;
-}
-
-export const V7000_MENUS: V7000MenuItem[] = [
-  { id: 1, title: '사진 → 글', desc: '한 장으로 AI 글 작성', href: '/photo' },
-  { id: 2, title: '글 → 사진', desc: '글 내용에 맞는 이미지 추천', href: '/text' },
-  { id: 3, title: '사진 → 글 연속', desc: '게시 후 바로 다음 사진', href: '/photo?mode=continuous' },
-  { id: 4, title: '여러 사진 합치기', desc: '여러 장을 한 글로', href: '/photo?mode=multi' },
-  { id: 5, title: '전 구간 자동', desc: '확인·게시 자동 (토글)', action: 'auto-toggle' },
-  { id: 6, title: '게시글 보기', desc: '방금 쓴 글 읽기', action: 'last-post' },
-];
-
-export const PHOTO_FLOW_STEPS = ['사진', 'AI', '확인', '완료'] as const;
-export const TEXT_FLOW_STEPS = ['글쓰기', '사진', '완료'] as const;
-
-export function postReadUrl(categorySlug: string, slug: string, postId: number): string {
-  return `/${categorySlug}/${slug}?pid=${postId}`;
-}
-
-export function menuTitleForMode(mode: PhotoFlowMode): string {
-  if (mode === 'multi') return '4 · 여러 사진 합치기';
-  if (mode === 'continuous') return '3 · 사진→글 연속';
-  return '1 · 사진→글';
-}
+/**
+ * @deprecated V7000 백업 — `@/lib/v6000-write-config` 사용
+ * 하위 호환 re-export
+ */
+export {
+  V6000_AUTO_MODE_KEY as V7000_AUTO_MODE_KEY,
+  V6000_LAST_POST_KEY as V7000_LAST_POST_KEY,
+  V6000_MENUS as V7000_MENUS,
+  type V6000LastPost as V7000LastPost,
+  type V6000MenuItem as V7000MenuItem,
+  type PhotoFlowMode,
+  PHOTO_FLOW_STEPS,
+  TEXT_FLOW_STEPS,
+  postReadUrl,
+  menuTitleForMode,
+} from '@/lib/v6000-write-config';

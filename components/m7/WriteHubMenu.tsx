@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { V7000_MENUS, postReadUrl } from '@/lib/v7000-config';
-import { readAutoMode, toggleAutoMode } from '@/lib/v7000-auto-mode';
-import { readLastPost } from '@/lib/v7000-last-post';
+import { V6000_MENUS, postReadUrl } from '@/lib/v6000-write-config';
+import { readAutoMode, toggleAutoMode } from '@/lib/v6000-write-auto-mode';
+import { readLastPost } from '@/lib/v6000-write-last-post';
 
 export function WriteHubMenu() {
   const router = useRouter();
@@ -17,7 +17,7 @@ export function WriteHubMenu() {
     setLastPost(readLastPost());
   }, []);
 
-  function onMenuClick(item: (typeof V7000_MENUS)[number]) {
+  function onMenuClick(item: (typeof V6000_MENUS)[number]) {
     if (item.action === 'auto-toggle') {
       setAutoOn(toggleAutoMode());
       return;
@@ -47,7 +47,7 @@ export function WriteHubMenu() {
       )}
 
       <ul className="m7-menu">
-        {V7000_MENUS.map(item => (
+        {V6000_MENUS.map(item => (
           <li key={item.id}>
             <button
               type="button"

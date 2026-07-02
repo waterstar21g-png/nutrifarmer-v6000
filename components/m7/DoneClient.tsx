@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { postReadUrl } from '@/lib/v7000-config';
-import { saveLastPost } from '@/lib/v7000-last-post';
+import { postReadUrl } from '@/lib/v6000-write-config';
+import { saveLastPost } from '@/lib/v6000-write-last-post';
 
 export function DoneClient() {
   const params = useSearchParams();

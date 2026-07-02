@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 import type { VisionDraftResult } from '@/lib/ai-vision-draft';
-import { readAutoMode } from '@/lib/v7000-auto-mode';
-import { menuTitleForMode, PHOTO_FLOW_STEPS, postReadUrl, type PhotoFlowMode } from '@/lib/v7000-config';
+import { readAutoMode } from '@/lib/v6000-write-auto-mode';
+import { menuTitleForMode, PHOTO_FLOW_STEPS, postReadUrl, type PhotoFlowMode } from '@/lib/v6000-write-config';
 import {
   clearPhotoFlowDraft,
   clearStashedPhotoFiles,
@@ -16,9 +16,9 @@ import {
   restorePhotoFiles,
   savePhotoFlowDraft,
   stashPhotoFiles,
-} from '@/lib/v7000-flow-draft';
-import { saveLastPost } from '@/lib/v7000-last-post';
-import { publishPost, requestVisionDraft, uploadPhoto } from '@/lib/v7000-client';
+} from '@/lib/v6000-write-draft';
+import { saveLastPost } from '@/lib/v6000-write-last-post';
+import { publishPost, requestVisionDraft, uploadPhoto } from '@/lib/v6000-write-client';
 import { prependFeaturedImageIfMissing } from '@/lib/write-featured-image';
 import { FlowChrome } from './FlowChrome';
 

@@ -598,7 +598,7 @@ img { max-width: 100%; height: auto; display: block; }
   .m6-main { max-width: 420px; }
 }
 
-/* ── V7000 write UI (m7) ── */
+/* ── V6.1 write UI (m7) ── */
 .m7-hub__auto { margin-bottom: 1rem; }
 .m7-hub__auto-note { font-size: 0.75rem; color: var(--m6-accent); margin: 0.35rem 0 0; }
 .m7-hub__foot { margin-top: 1.5rem; font-size: 0.8125rem; text-align: center; opacity: 0.85; }
@@ -672,7 +672,7 @@ img { max-width: 100%; height: auto; display: block; }
 .m7-suggest-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
 .m7-suggest-item span { display: block; font-size: 0.625rem; padding: 0.25rem; text-align: center; color: var(--m6-muted); }
 
-/* ── V7000 UX v2 (hub · chrome · sheet) ── */
+/* ── V6.1 UX v2 (hub · chrome · sheet) ── */
 .m7-hub__hero {
   background: linear-gradient(145deg, var(--m6-primary), var(--m6-blue));
   color: #fff; border-radius: 16px; padding: 1.25rem 1rem; margin-bottom: 1rem;

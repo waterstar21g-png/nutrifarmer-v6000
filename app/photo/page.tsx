@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { PhotoWriteGate } from '@/components/m7/PhotoWriteGate';
-import type { PhotoFlowMode } from '@/lib/v7000-config';
+import type { PhotoFlowMode } from '@/lib/v6000-write-config';
 
 export const metadata: Metadata = {
   title: '사진 → 글',
