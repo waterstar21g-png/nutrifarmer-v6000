@@ -3,13 +3,16 @@ import {
   listLatestPublished,
   listPublishedByCategory,
   searchPublishedPosts,
+  type V5000PostListRow,
 } from '@/lib/v5000-content/posts';
-import type { V5000PostRow } from '@/lib/v5000-content/schema';
+import { loadPostListStale, savePostListStale } from '@/lib/v5000-content/post-list-stale';
 
 /** 공개 목록 — Neon 전송량 절감 (5분 캐시) */
 export const POST_LIST_REVALIDATE_SEC = 300;
 
 export const POSTS_LIST_TAG = 'v5000-posts-list';
+
+export type CachedPostList<T> = { data: T; stale: boolean };
 
 export function postCategoryTag(categorySlug: string): string {
   return `${POSTS_LIST_TAG}-cat-${categorySlug}`;
@@ -34,37 +37,67 @@ export function invalidatePostPages(categorySlug: string, slug?: string): void {
   if (slug?.trim() && cat) revalidatePath(`/${cat}/${slug.trim()}`);
 }
 
-export async function getCachedLatestPublished(limit: number): Promise<V5000PostRow[]> {
-  return unstable_cache(
-    async () => listLatestPublished(limit),
-    [POSTS_LIST_TAG, 'latest', String(limit)],
-    { revalidate: POST_LIST_REVALIDATE_SEC, tags: [POSTS_LIST_TAG] },
-  )();
+async function fetchWithStale<T>(
+  staleKey: string,
+  fetchFresh: () => Promise<T>,
+): Promise<CachedPostList<T>> {
+  try {
+    const data = await fetchFresh();
+    savePostListStale(staleKey, data);
+    return { data, stale: false };
+  } catch (err) {
+    console.error(`[v6000] post list fetch failed (${staleKey}):`, err);
+    const cached = loadPostListStale<T>(staleKey);
+    if (cached != null) {
+      const isEmpty = Array.isArray(cached) && cached.length === 0;
+      if (!isEmpty) return { data: cached, stale: true };
+    }
+    throw err;
+  }
+}
+
+export async function getCachedLatestPublished(
+  limit: number,
+): Promise<CachedPostList<V5000PostListRow[]>> {
+  const staleKey = `latest:${limit}`;
+  return fetchWithStale(staleKey, () =>
+    unstable_cache(
+      async () => listLatestPublished(limit),
+      [POSTS_LIST_TAG, 'latest', String(limit)],
+      { revalidate: POST_LIST_REVALIDATE_SEC, tags: [POSTS_LIST_TAG] },
+    )(),
+  );
 }
 
 export async function getCachedPublishedByCategory(
   categorySlug: string,
   limit: number,
-): Promise<V5000PostRow[]> {
-  return unstable_cache(
-    async () => listPublishedByCategory(categorySlug, limit),
-    [POSTS_LIST_TAG, 'cat', categorySlug, String(limit)],
-    {
-      revalidate: POST_LIST_REVALIDATE_SEC,
-      tags: [POSTS_LIST_TAG, postCategoryTag(categorySlug)],
-    },
-  )();
+): Promise<CachedPostList<V5000PostListRow[]>> {
+  const staleKey = `cat:${categorySlug}:${limit}`;
+  return fetchWithStale(staleKey, () =>
+    unstable_cache(
+      async () => listPublishedByCategory(categorySlug, limit),
+      [POSTS_LIST_TAG, 'cat', categorySlug, String(limit)],
+      {
+        revalidate: POST_LIST_REVALIDATE_SEC,
+        tags: [POSTS_LIST_TAG, postCategoryTag(categorySlug)],
+      },
+    )(),
+  );
 }
 
 export async function getCachedSearchPublished(
   query: string,
   limit: number,
-): Promise<V5000PostRow[]> {
+): Promise<CachedPostList<V5000PostListRow[]>> {
   const q = query.trim();
-  if (!q) return [];
-  return unstable_cache(
-    async () => searchPublishedPosts(q, limit),
-    [POSTS_LIST_TAG, 'search', q, String(limit)],
-    { revalidate: 60, tags: [POSTS_LIST_TAG] },
-  )();
+  if (!q) return { data: [], stale: false };
+  const staleKey = `search:${q}:${limit}`;
+  return fetchWithStale(staleKey, () =>
+    unstable_cache(
+      async () => searchPublishedPosts(q, limit),
+      [POSTS_LIST_TAG, 'search', q, String(limit)],
+      { revalidate: 60, tags: [POSTS_LIST_TAG] },
+    )(),
+  );
 }

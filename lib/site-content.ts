@@ -69,7 +69,7 @@ function rowToGallery(row: V5000PostListRow, categorySlug: string): GalleryItem 
 }
 
 export async function getSidebarPosts(categorySlug: string): Promise<SidebarPostItem[]> {
-  const rows = await getCachedPublishedByCategory(categorySlug, 100);
+  const { data: rows } = await getCachedPublishedByCategory(categorySlug, 100);
   return rows.map(rowToSidebar);
 }
 
@@ -93,7 +93,7 @@ export async function getPreviewPostsBySlugs(
   const unique = [...new Set(slugs)];
   const entries = await Promise.all(
     unique.map(async slug => {
-      const rows = await getCachedPublishedByCategory(slug, perPage);
+      const { data: rows } = await getCachedPublishedByCategory(slug, perPage);
       const cat = getSiteCategory(slug);
       const previews = rows.map(row => rowToPreviewPost(row, cat));
       return [slug, previews] as const;
@@ -103,22 +103,46 @@ export async function getPreviewPostsBySlugs(
 }
 
 export async function getLatestPreviewPosts(perPage = 6): Promise<PreviewPost[]> {
-  const rows = await getCachedLatestPublished(perPage);
+  const { data: rows } = await getCachedLatestPublished(perPage);
   return rows.map(row => rowToPreviewPost(row));
+}
+
+export async function getLatestPreviewPostsCached(
+  perPage = 6,
+): Promise<{ posts: PreviewPost[]; stale: boolean }> {
+  const { data: rows, stale } = await getCachedLatestPublished(perPage);
+  return { posts: rows.map(row => rowToPreviewPost(row)), stale };
 }
 
 export async function getCategoryPreviewPosts(
   categorySlug: string,
   limit = 30,
 ): Promise<PreviewPost[]> {
-  const rows = await getCachedPublishedByCategory(categorySlug, limit);
+  const { data: rows } = await getCachedPublishedByCategory(categorySlug, limit);
   const cat = getSiteCategory(categorySlug);
   return rows.map(row => rowToPreviewPost(row, cat));
 }
 
+export async function getCategoryPreviewPostsCached(
+  categorySlug: string,
+  limit = 30,
+): Promise<{ posts: PreviewPost[]; stale: boolean }> {
+  const { data: rows, stale } = await getCachedPublishedByCategory(categorySlug, limit);
+  const cat = getSiteCategory(categorySlug);
+  return { posts: rows.map(row => rowToPreviewPost(row, cat)), stale };
+}
+
 export async function searchPosts(query: string, limit = 12): Promise<PreviewPost[]> {
-  const rows = await getCachedSearchPublished(query, limit);
+  const { data: rows } = await getCachedSearchPublished(query, limit);
   return rows.map(row => rowToPreviewPost(row));
+}
+
+export async function searchPostsCached(
+  query: string,
+  limit = 12,
+): Promise<{ posts: PreviewPost[]; stale: boolean }> {
+  const { data: rows, stale } = await getCachedSearchPublished(query, limit);
+  return { posts: rows.map(row => rowToPreviewPost(row)), stale };
 }
 
 export function galleryItemToGrid(item: GalleryItem) {

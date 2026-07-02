@@ -586,6 +586,56 @@ img { max-width: 100%; height: auto; display: block; }
   line-height: 1.5;
 }
 
+.m6-posts-notice {
+  margin: 0 0 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+}
+
+.m6-posts-notice--full {
+  margin: 1rem 0;
+}
+
+.m6-posts-notice__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.m6-posts-notice__desc {
+  margin: 0 0 0.65rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: #78350f;
+}
+
+.m6-posts-notice__desc strong {
+  font-weight: 700;
+}
+
+.m6-posts-notice__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #0f2744;
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.m6-posts-notice__btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 /* 로그인 페이지 — 모바일 전용 여백 */
 .m6-login-wrap {
   max-width: 480px;

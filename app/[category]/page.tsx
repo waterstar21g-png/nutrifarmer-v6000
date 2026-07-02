@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
+import { safeFetchPostList } from '@/lib/v5000-content/fetch-safe';
 import { getSiteCategory } from '@/lib/v5000-content/public-posts';
-import { getCategoryPreviewPosts } from '@/lib/site-content';
-import { MobilePostCard } from '@/components/m6/MobilePostCard';
+import { getCategoryPreviewPostsCached } from '@/lib/site-content';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
+import { PostListSection } from '@/components/m6/PostListSection';
 
 export const revalidate = 300;
 
@@ -28,10 +28,10 @@ export default async function MobileCategoryPage({ params }: Props) {
   const cat = getSiteCategory(category);
   if (!cat) notFound();
 
-  const { data: posts, loadFailed } = await safeFetchPosts(
-    () => getCategoryPreviewPosts(category, 30),
-    [],
-  );
+  const { data: posts, loadFailed, stale, notice } = await safeFetchPostList(async () => {
+    const r = await getCategoryPreviewPostsCached(category, 30);
+    return { items: r.posts, stale: r.stale };
+  });
 
   return (
     <>
@@ -48,16 +48,18 @@ export default async function MobileCategoryPage({ params }: Props) {
       <section className="m6-section">
         <div className="m6-section__head">
           <h2 className="m6-section__title">글 목록</h2>
-          <span className="m6-section__link">{loadFailed ? '—' : `${posts.length}건`}</span>
+          <span className="m6-section__link">
+            {loadFailed ? '—' : stale ? `${posts.length}건 · 저장본` : `${posts.length}건`}
+          </span>
         </div>
         <div className="m6-post-list">
-          {loadFailed ? (
-            <p className="m6-empty m6-empty--warn">{POSTS_LOAD_ERROR_MSG}</p>
-          ) : posts.length > 0 ? (
-            posts.map(p => <MobilePostCard key={p.id} post={p} />)
-          ) : (
-            <p className="m6-empty">이 카테고리에 게시글이 없습니다.</p>
-          )}
+          <PostListSection
+            posts={posts}
+            loadFailed={loadFailed}
+            stale={stale}
+            notice={notice}
+            emptyMessage="이 카테고리에 게시글이 없습니다."
+          />
         </div>
       </section>
     </>
