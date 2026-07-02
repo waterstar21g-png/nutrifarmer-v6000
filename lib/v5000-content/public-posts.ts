@@ -7,6 +7,7 @@ import {
   resolveMediaUrlWithMap,
   rewriteHtmlMediaUrlsWithMap,
 } from './media-mirror';
+import { previewImageUrlForList } from './preview-image';
 import type { V5000PreviewListRow } from './preview-image';
 import type { V5000PostRow } from './schema';
 
@@ -53,7 +54,8 @@ export async function rowsToPreviewPosts(
     const src =
       previewSrc?.trim() ||
       firstImageUrlFromHtml(rewritten);
-    const imageUrl = src ? resolveMediaUrlWithMap(src, map) : null;
+    const resolved = src ? resolveMediaUrlWithMap(src, map) : null;
+    const imageUrl = previewImageUrlForList(row.id, resolved);
     return previewPostFromRow(row, c, imageUrl);
   });
 }
