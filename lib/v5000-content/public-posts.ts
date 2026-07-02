@@ -7,6 +7,7 @@ import {
   resolveMediaUrlWithMap,
   rewriteHtmlMediaUrlsWithMap,
 } from './media-mirror';
+import type { V5000PreviewListRow } from './preview-image';
 import type { V5000PostRow } from './schema';
 
 const ALL_CATS: CatItem[] = [...SHOWCASE_CATS, ...ABOUT_ITEMS, ...FAMILY_ITEMS];
@@ -40,15 +41,18 @@ function previewPostFromRow(
 
 /** 목록·검색 썸네일 — 미러 DB로 WP·프록시 URL을 CDN으로 일괄 치환 */
 export async function rowsToPreviewPosts(
-  rows: V5000PostRow[],
+  rows: Array<V5000PreviewListRow | V5000PostRow>,
   cat?: CatItem | null,
 ): Promise<PreviewPost[]> {
   if (rows.length === 0) return [];
   const map = await getMediaMirrorMap();
   return rows.map(row => {
     const c = cat ?? getSiteCategory(row.categorySlug);
+    const previewSrc = 'previewImageSrc' in row ? row.previewImageSrc : null;
     const rewritten = rewriteHtmlMediaUrlsWithMap(row.body, map);
-    const src = firstImageUrlFromHtml(rewritten);
+    const src =
+      previewSrc?.trim() ||
+      firstImageUrlFromHtml(rewritten);
     const imageUrl = src ? resolveMediaUrlWithMap(src, map) : null;
     return previewPostFromRow(row, c, imageUrl);
   });
