@@ -4,6 +4,13 @@ import { v5000MediaMirror } from './schema';
 
 const WP_UPLOADS_RE = /\/wp-content\/uploads\/(.+)$/i;
 
+/** V5000·마이그레이션 스크립트와 동일한 기본 CDN */
+export const DEFAULT_CDN_URL = 'https://media.nutrifarmer.kr';
+
+export function mediaCdnBase(): string {
+  return process.env.NEXT_PUBLIC_CDN_URL?.trim().replace(/\/$/, '') || DEFAULT_CDN_URL;
+}
+
 /** URL 정규화 — 쿼리·해시 제거 */
 export function normalizeMediaUrl(url: string): string {
   if (!url?.trim()) return '';
@@ -27,9 +34,8 @@ export function wpUrlToR2Key(wpUrl: string): string | null {
 /** CDN 베이스 + uploads 상대경로 (DB 없을 때 폴백) */
 export function cdnUrlFromWp(wpUrl: string): string | null {
   const key = wpUrlToR2Key(wpUrl);
-  const cdn = process.env.NEXT_PUBLIC_CDN_URL?.trim().replace(/\/$/, '');
-  if (!key || !cdn) return null;
-  return `${cdn}/${key}`;
+  if (!key) return null;
+  return `${mediaCdnBase()}/${key}`;
 }
 
 /** unstable_cache는 Map 직렬화 불가 — plain record 사용 */
@@ -74,11 +80,11 @@ export function resolveMediaUrlWithMap(source: string, map: MirrorRecord): strin
   const hit = map[norm];
   if (hit) return hit;
 
-  const cdn = process.env.NEXT_PUBLIC_CDN_URL?.trim().replace(/\/$/, '');
+  const cdn = mediaCdnBase();
   const apiKey =
     trimmed.match(/^\/api\/v5000\/files\/(.+)$/i)?.[1] ??
     norm.match(/\/api\/v5000\/files\/(.+)$/i)?.[1];
-  if (apiKey && cdn) {
+  if (apiKey) {
     return `${cdn}/${decodeURIComponent(apiKey)}`;
   }
 
