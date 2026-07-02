@@ -22,6 +22,8 @@ const SKIP = /^(VERCEL_|TURBO_|NX_)/;
 const OVERRIDES = {
   NEXT_PUBLIC_SITE_URL: 'https://m.nutrifarmer.kr',
   NEXT_PUBLIC_V5000_WRITE_URL: 'https://www.nutrifarmer.kr/write',
+  NEXT_PUBLIC_CDN_URL: 'https://media.nutrifarmer.kr',
+  R2_PUBLIC_ACCESS: 'true',
 };
 
 function parseEnv(text) {
