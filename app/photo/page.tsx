@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { MobilePhotoWriteFlow } from '@/components/m7/MobilePhotoWriteFlow';
+import { PhotoWriteGate } from '@/components/m7/PhotoWriteGate';
 import type { PhotoFlowMode } from '@/lib/v7000-config';
 
 export const metadata: Metadata = {
@@ -18,5 +18,5 @@ function parseMode(raw?: string): PhotoFlowMode {
 
 export default async function PhotoWritePage({ searchParams }: Props) {
   const { mode: raw } = await searchParams;
-  return <MobilePhotoWriteFlow mode={parseMode(raw)} />;
+  return <PhotoWriteGate mode={parseMode(raw)} />;
 }

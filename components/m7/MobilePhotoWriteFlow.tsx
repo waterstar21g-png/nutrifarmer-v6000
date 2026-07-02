@@ -6,6 +6,17 @@ import { SHOWCASE_CATS } from '@/lib/site-data';
 import type { VisionDraftResult } from '@/lib/ai-vision-draft';
 import { readAutoMode } from '@/lib/v7000-auto-mode';
 import { menuTitleForMode, PHOTO_FLOW_STEPS, postReadUrl, type PhotoFlowMode } from '@/lib/v7000-config';
+import {
+  clearPhotoFlowDraft,
+  clearStashedPhotoFiles,
+  isAuthRedirectError,
+  loginPathFor,
+  photoReturnPath,
+  readPhotoFlowDraft,
+  restorePhotoFiles,
+  savePhotoFlowDraft,
+  stashPhotoFiles,
+} from '@/lib/v7000-flow-draft';
 import { saveLastPost } from '@/lib/v7000-last-post';
 import { publishPost, requestVisionDraft, uploadPhoto } from '@/lib/v7000-client';
 import { prependFeaturedImageIfMissing } from '@/lib/write-featured-image';
@@ -48,6 +59,8 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
   const [showMeaningGrid, setShowMeaningGrid] = useState(false);
   const [userMeaning, setUserMeaning] = useState('');
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [restoreNotice, setRestoreNotice] = useState<string | null>(null);
 
   const multi = mode === 'multi';
   const continuous = mode === 'continuous';
@@ -58,6 +71,57 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
   useEffect(() => {
     setAutoMode(readAutoMode());
   }, []);
+
+  useEffect(() => {
+    if (draftRestored) return;
+    let cancelled = false;
+
+    (async () => {
+      const saved = readPhotoFlowDraft(mode);
+      const stashed = saved ? [] : await restorePhotoFiles();
+
+      if (cancelled) return;
+
+      if (saved) {
+        setDraft(saved.draft);
+        setUploadedUrls(saved.uploadedUrls);
+        setUserMeaning(saved.userMeaning);
+        setStep(saved.step);
+        const previews = saved.uploadedUrls.length
+          ? saved.uploadedUrls
+          : [];
+        if (previews.length) {
+          setPhotos(
+            previews.map((url, i) => ({
+              id: `restored-${i}`,
+              file: new File([], `photo-${i}.jpg`, { type: 'image/jpeg' }),
+              preview: url,
+            })),
+          );
+        }
+        clearPhotoFlowDraft();
+        await clearStashedPhotoFiles();
+        setRestoreNotice('로그인 전 작성 중이던 글을 이어서 불러왔습니다.');
+      } else if (stashed.length) {
+        setPhotos(
+          stashed.map((file, i) => ({
+            id: `stash-${i}-${file.lastModified}`,
+            file,
+            preview: URL.createObjectURL(file),
+          })),
+        );
+        setStep('confirm');
+        await clearStashedPhotoFiles();
+        setRestoreNotice('로그인 전 고른 사진을 다시 불러왔습니다.');
+      }
+
+      setDraftRestored(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, draftRestored]);
 
   useEffect(() => {
     return () => {
@@ -119,6 +183,8 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
   }
 
   function finishPublish(post: PublishedBrief) {
+    clearPhotoFlowDraft();
+    void clearStashedPhotoFiles();
     saveLastPost(post);
     if (continuous) {
       setToast(post);
@@ -130,14 +196,37 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
     }
   }
 
+  async function redirectLoginWithDraft(opts: {
+    step: 'confirm' | 'review';
+    draftSnapshot?: VisionDraftResult | null;
+    uploadedSnapshot?: string[];
+  }) {
+    const returnPath = photoReturnPath(mode);
+    const urls = opts.uploadedSnapshot ?? uploadedUrls;
+    savePhotoFlowDraft({
+      mode,
+      step: opts.step,
+      draft: opts.draftSnapshot ?? draft,
+      uploadedUrls: urls,
+      userMeaning,
+    });
+    if (photos.length && urls.length < photos.length) {
+      const localFiles = photos.map(p => p.file).filter(f => f.size > 0);
+      if (localFiles.length) await stashPhotoFiles(localFiles);
+    }
+    router.push(loginPathFor(returnPath));
+  }
+
   async function runPipeline(auto: boolean, userIntent?: string) {
     setBusy(true);
     setError(null);
     abortRef.current = false;
     setStep('ai');
 
+    let uploaded: string[] = [];
+    let result: VisionDraftResult | null = null;
+
     try {
-      const uploaded: string[] = [];
       for (const p of photos) {
         if (abortRef.current) return;
         const media = await uploadPhoto(p.file);
@@ -147,7 +236,7 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
       if (abortRef.current) return;
 
       const intent = userIntent?.trim();
-      const result = await requestVisionDraft({
+      result = await requestVisionDraft({
         imageUrls: uploaded,
         mergeMode: multi ? 'multi' : 'single',
         userIntent: intent || undefined,
@@ -171,9 +260,12 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
     } catch (e) {
       if (abortRef.current) return;
       const msg = e instanceof Error ? e.message : '처리 실패';
-      if (msg === 'LOGIN_REQUIRED') {
-        const q = multi ? '?mode=multi' : continuous ? '?mode=continuous' : '';
-        router.push(`/login?redirect_to=${encodeURIComponent(`/photo${q}`)}`);
+      if (isAuthRedirectError(msg)) {
+        await redirectLoginWithDraft({
+          step: result ? 'review' : 'confirm',
+          draftSnapshot: result,
+          uploadedSnapshot: uploaded,
+        });
         return;
       }
       setError(msg);
@@ -221,6 +313,10 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
       finishPublish(post);
     } catch (e) {
       const msg = e instanceof Error ? e.message : '게시 실패';
+      if (isAuthRedirectError(msg)) {
+        await redirectLoginWithDraft({ step: 'review', draftSnapshot: draft, uploadedSnapshot: uploadedUrls });
+        return;
+      }
       setError(msg);
     } finally {
       setBusy(false);
@@ -282,6 +378,10 @@ export function MobilePhotoWriteFlow({ mode }: Props) {
           <a href={postReadUrl(toast.categorySlug, toast.slug, toast.id)} className="m7-link-btn">글 보기</a>
           <button type="button" className="m7-link-btn" onClick={() => setToast(null)}>닫기</button>
         </div>
+      )}
+
+      {restoreNotice && (
+        <p className="m7-toast" role="status">{restoreNotice}</p>
       )}
 
       {error && <p className="m7-error" role="alert">{error}</p>}

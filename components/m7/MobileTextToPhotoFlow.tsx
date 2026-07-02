@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 import { readAutoMode } from '@/lib/v7000-auto-mode';
 import { TEXT_FLOW_STEPS } from '@/lib/v7000-config';
+import {
+  clearTextFlowDraft,
+  isAuthRedirectError,
+  loginPathFor,
+  readTextFlowDraft,
+  saveTextFlowDraft,
+} from '@/lib/v7000-flow-draft';
 import { saveLastPost } from '@/lib/v7000-last-post';
 import { publishPost } from '@/lib/v7000-client';
 import { extractLocalKeywords, fetchSuggestedImages, type SuggestedImage } from '@/lib/write-image-suggest';
@@ -26,6 +33,8 @@ export function MobileTextToPhotoFlow() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [autoMode, setAutoMode] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [restoreNotice, setRestoreNotice] = useState<string | null>(null);
 
   const stepIndex = step === 'write' ? 0 : step === 'images' ? 1 : 1;
   const dirty = title.trim().length > 0 || bodyText.trim().length > 0 || images.length > 0;
@@ -33,6 +42,40 @@ export function MobileTextToPhotoFlow() {
   useEffect(() => {
     setAutoMode(readAutoMode());
   }, []);
+
+  useEffect(() => {
+    if (draftRestored) return;
+    const saved = readTextFlowDraft();
+    if (saved) {
+      setTitle(saved.title);
+      setExcerpt(saved.excerpt);
+      setBodyText(saved.bodyText);
+      setCategorySlug(saved.categorySlug);
+      setImages(saved.images);
+      setPickedUrl(saved.pickedUrl);
+      setStep(saved.step);
+      clearTextFlowDraft();
+      setRestoreNotice('로그인 전 작성 중이던 글을 이어서 불러왔습니다.');
+    }
+    setDraftRestored(true);
+  }, [draftRestored]);
+
+  function saveDraftForLogin(stepToSave: 'write' | 'images') {
+    saveTextFlowDraft({
+      step: stepToSave,
+      title,
+      excerpt,
+      bodyText,
+      categorySlug,
+      images,
+      pickedUrl,
+    });
+  }
+
+  function redirectLogin(stepToSave: 'write' | 'images') {
+    saveDraftForLogin(stepToSave);
+    router.push(loginPathFor('/text'));
+  }
 
   function hardAbort() {
     abortRef.current = true;
@@ -61,8 +104,8 @@ export function MobileTextToPhotoFlow() {
       try {
         suggested = await fetchSuggestedImages({ title, excerpt, body: bodyText });
       } catch (e) {
-        if (e instanceof Error && e.message === 'LOGIN_REQUIRED') {
-          router.push('/login?redirect_to=/text');
+        if (e instanceof Error && isAuthRedirectError(e.message)) {
+          redirectLogin('write');
           return;
         }
         const keywords = extractLocalKeywords(title, excerpt, bodyText);
@@ -110,13 +153,14 @@ export function MobileTextToPhotoFlow() {
         categorySlug,
       });
       saveLastPost(post);
+      clearTextFlowDraft();
       router.push(
         `/done?category=${encodeURIComponent(post.categorySlug)}&slug=${encodeURIComponent(post.slug)}&pid=${post.id}&title=${encodeURIComponent(post.title)}`,
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : '게시 실패';
-      if (msg === 'LOGIN_REQUIRED') {
-        router.push('/login?redirect_to=/text');
+      if (isAuthRedirectError(msg)) {
+        redirectLogin('images');
         return;
       }
       setError(msg);
@@ -143,6 +187,10 @@ export function MobileTextToPhotoFlow() {
         onBack={step === 'images' ? onBack : undefined}
         onAbort={hardAbort}
       />
+
+      {restoreNotice && (
+        <p className="m7-toast" role="status">{restoreNotice}</p>
+      )}
 
       {error && <p className="m7-error" role="alert">{error}</p>}
 

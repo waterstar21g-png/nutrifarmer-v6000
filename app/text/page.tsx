@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { MobileTextToPhotoFlow } from '@/components/m7/MobileTextToPhotoFlow';
+import { TextWriteGate } from '@/components/m7/TextWriteGate';
 
 export const metadata: Metadata = {
   title: '글 → 사진',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TextWritePage() {
-  return <MobileTextToPhotoFlow />;
+  return <TextWriteGate />;
 }
