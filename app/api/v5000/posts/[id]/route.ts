@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { canEditPost, requireSession, withDatabase } from '@/lib/v5000-content/api';
+import { invalidatePostPages } from '@/lib/v5000-content/post-list-cache';
 import { logPostAction } from '@/lib/v5000-content/post-actions';
 import { deletePost, findPostById, toPostDto, updatePost } from '@/lib/v5000-content/posts';
 import { postErrorMessage, validatePostInput } from '@/lib/v5000-content/validate';
@@ -101,6 +102,10 @@ export async function PUT(req: NextRequest, ctx: RouteCtx) {
       authorUserId: existing.authorId,
       action: 'edit',
     });
+    invalidatePostPages(row.categorySlug, row.slug);
+    if (existing.categorySlug !== row.categorySlug) {
+      invalidatePostPages(existing.categorySlug, existing.slug);
+    }
     return NextResponse.json({ ok: true, post: toPostDto(row) });
   });
 
@@ -132,6 +137,7 @@ export async function DELETE(_req: NextRequest, ctx: RouteCtx) {
       action: 'delete',
     });
     await deletePost(id);
+    invalidatePostPages(existing.categorySlug, existing.slug);
     return NextResponse.json({ ok: true });
   });
 

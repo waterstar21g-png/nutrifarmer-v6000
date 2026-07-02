@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SHOWCASE_CATS } from '@/lib/site-data';
-import { getLatestPreviewPosts, searchPreviewPosts } from '@/lib/home-posts';
-import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
-import { MobilePostCard } from '@/components/m6/MobilePostCard';
+import { safeFetchPostList } from '@/lib/v5000-content/fetch-safe';
+import {
+  getCategoryPreviewPostsCached,
+  getLatestPreviewPostsCached,
+  searchPostsCached,
+} from '@/lib/site-content';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
+import { PostListSection } from '@/components/m6/PostListSection';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: '홈',
@@ -22,34 +26,37 @@ export default async function MobileHomePage({ searchParams }: Props) {
   const query = s?.trim();
 
   if (query) {
-    const { data: results, loadFailed } = await safeFetchPosts(
-      () => searchPreviewPosts(query, 20),
-      [],
-    );
+    const { data: results, loadFailed, stale, notice } = await safeFetchPostList(async () => {
+      const r = await searchPostsCached(query, 20);
+      return { items: r.posts, stale: r.stale };
+    });
+
     return (
       <>
         <section className="m6-hero">
           <p className="m6-hero__label">검색</p>
           <h1 className="m6-hero__title">&quot;{query}&quot;</h1>
-          <p className="m6-hero__desc">{loadFailed ? '—' : `${results.length}건`}</p>
+          <p className="m6-hero__desc">
+            {loadFailed ? '—' : stale ? `${results.length}건 · 저장본` : `${results.length}건`}
+          </p>
         </section>
         <div className="m6-post-list">
-          {loadFailed ? (
-            <p className="m6-empty m6-empty--warn">{POSTS_LOAD_ERROR_MSG}</p>
-          ) : results.length > 0 ? (
-            results.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} />)
-          ) : (
-            <p className="m6-empty">검색 결과가 없습니다.</p>
-          )}
+          <PostListSection
+            posts={results}
+            loadFailed={loadFailed}
+            stale={stale}
+            notice={notice}
+            emptyMessage="검색 결과가 없습니다."
+          />
         </div>
       </>
     );
   }
 
-  const { data: latest, loadFailed } = await safeFetchPosts(
-    () => getLatestPreviewPosts(12),
-    [],
-  );
+  const { data: latest, loadFailed, stale, notice } = await safeFetchPostList(async () => {
+    const r = await getLatestPreviewPostsCached(12);
+    return { items: r.posts, stale: r.stale };
+  });
 
   return (
     <>
@@ -71,13 +78,13 @@ export default async function MobileHomePage({ searchParams }: Props) {
           <Link href="/daily-life" className="m6-section__link">더보기</Link>
         </div>
         <div className="m6-post-list">
-          {loadFailed ? (
-            <p className="m6-empty m6-empty--warn">{POSTS_LOAD_ERROR_MSG}</p>
-          ) : latest.length > 0 ? (
-            latest.map(p => <MobilePostCard key={`${p.categorySlug}-${p.id}`} post={p} />)
-          ) : (
-            <p className="m6-empty">아직 게시글이 없습니다.</p>
-          )}
+          <PostListSection
+            posts={latest}
+            loadFailed={loadFailed}
+            stale={stale}
+            notice={notice}
+            emptyMessage="아직 게시글이 없습니다."
+          />
         </div>
       </section>
     </>

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
-import { listPublishedByCategory } from '@/lib/v5000-content/posts';
-import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-posts';
-import { MobilePostCard } from '@/components/m6/MobilePostCard';
+import { safeFetchPostList } from '@/lib/v5000-content/fetch-safe';
+import { getSiteCategory } from '@/lib/v5000-content/public-posts';
+import { getCategoryPreviewPostsCached } from '@/lib/site-content';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
+import { PostListSection } from '@/components/m6/PostListSection';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ category: string }>;
@@ -28,11 +28,10 @@ export default async function MobileCategoryPage({ params }: Props) {
   const cat = getSiteCategory(category);
   if (!cat) notFound();
 
-  const { data: rows, loadFailed } = await safeFetchPosts(
-    () => listPublishedByCategory(category, 30),
-    [],
-  );
-  const posts = rows.map(row => rowToPreviewPost(row, cat));
+  const { data: posts, loadFailed, stale, notice } = await safeFetchPostList(async () => {
+    const r = await getCategoryPreviewPostsCached(category, 30);
+    return { items: r.posts, stale: r.stale };
+  });
 
   return (
     <>
@@ -49,16 +48,18 @@ export default async function MobileCategoryPage({ params }: Props) {
       <section className="m6-section">
         <div className="m6-section__head">
           <h2 className="m6-section__title">글 목록</h2>
-          <span className="m6-section__link">{loadFailed ? '—' : `${posts.length}건`}</span>
+          <span className="m6-section__link">
+            {loadFailed ? '—' : stale ? `${posts.length}건 · 저장본` : `${posts.length}건`}
+          </span>
         </div>
         <div className="m6-post-list">
-          {loadFailed ? (
-            <p className="m6-empty m6-empty--warn">{POSTS_LOAD_ERROR_MSG}</p>
-          ) : posts.length > 0 ? (
-            posts.map(p => <MobilePostCard key={p.id} post={p} />)
-          ) : (
-            <p className="m6-empty">이 카테고리에 게시글이 없습니다.</p>
-          )}
+          <PostListSection
+            posts={posts}
+            loadFailed={loadFailed}
+            stale={stale}
+            notice={notice}
+            emptyMessage="이 카테고리에 게시글이 없습니다."
+          />
         </div>
       </section>
     </>

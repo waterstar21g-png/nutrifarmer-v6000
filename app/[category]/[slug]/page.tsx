@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { MobileSinglePost } from '@/components/m6/MobileSinglePost';
 import { findPublishedPostWithAuthor } from '@/lib/v5000-content/posts';
@@ -7,7 +6,7 @@ import { firstImageFromBody } from '@/lib/v5000-content/public-posts';
 import { rewriteHtmlMediaUrls } from '@/lib/v5000-content/media-mirror';
 import { stripLeadingPostMeta } from '@/lib/single-post-body';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ category: string; slug: string }>;
@@ -25,27 +24,29 @@ function removeFirstImageBlock(html: string): string {
 
 async function resolvePost(slug: string, postId?: number) {
   if (postId) {
-    return findPublishedPostWithAuthor({ id: postId }).catch(() => null);
+    return findPublishedPostWithAuthor({ id: postId });
   }
-  return findPublishedPostWithAuthor({ slug }).catch(() => null);
+  return findPublishedPostWithAuthor({ slug });
 }
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-  noStore();
   const { slug } = await params;
   const { pid } = await searchParams;
   const postId = pid ? parseInt(pid, 10) : undefined;
-  const post = await resolvePost(slug, Number.isFinite(postId) ? postId : undefined);
+  const post = await resolvePost(slug, Number.isFinite(postId) ? postId : undefined).catch(
+    () => null,
+  );
   if (!post) return {};
   return { title: post.title, description: post.excerpt.slice(0, 160) };
 }
 
 export default async function MobileSinglePage({ params, searchParams }: Props) {
-  noStore();
   const { slug } = await params;
   const { pid } = await searchParams;
   const postId = pid ? parseInt(pid, 10) : undefined;
-  const post = await resolvePost(slug, Number.isFinite(postId) ? postId : undefined);
+  const post = await resolvePost(slug, Number.isFinite(postId) ? postId : undefined).catch(
+    () => null,
+  );
 
   if (!post) notFound();
 
