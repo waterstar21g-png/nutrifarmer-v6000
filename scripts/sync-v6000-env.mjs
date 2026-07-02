@@ -71,9 +71,15 @@ console.log(`Syncing ${vars.size} vars → nutrifarmer-v6000 production`);
 
 let ok = 0;
 let fail = 0;
+let skip = 0;
 for (const [key, value] of vars) {
+  if (!value?.trim()) {
+    console.log(`SKIP ${key} (empty — 기존 Vercel 값 유지)`);
+    skip++;
+    continue;
+  }
   if (addEnv(key, value, 'production')) ok++;
   else fail++;
 }
 
-console.log(`\nDone: ${ok} ok, ${fail} fail`);
+console.log(`\nDone: ${ok} ok, ${fail} fail, ${skip} skipped (empty)`);

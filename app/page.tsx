@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SHOWCASE_CATS } from '@/lib/site-data';
-import { getLatestPreviewPosts, searchPreviewPosts } from '@/lib/home-posts';
 import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
+import { getLatestPreviewPosts, searchPreviewPosts } from '@/lib/home-posts';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: '홈',

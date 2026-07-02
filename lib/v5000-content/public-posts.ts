@@ -15,14 +15,29 @@ export function firstImageFromBody(html: string): string | null {
   return src ? resolveMediaUrlSync(src) : null;
 }
 
-export function rowToPreviewPost(row: V5000PostRow, cat?: CatItem | null): PreviewPost {
+/** 목록 행 — DB에서 추출한 thumbSrc 우선, 없으면 excerpt/body */
+export function previewImageUrl(row: {
+  thumbSrc?: string | null;
+  excerpt?: string;
+  body?: string;
+}): string | null {
+  if (row.thumbSrc?.trim()) return resolveMediaUrlSync(row.thumbSrc.trim());
+  const fromExcerpt = row.excerpt ? firstImageUrlFromHtml(row.excerpt) : null;
+  if (fromExcerpt) return resolveMediaUrlSync(fromExcerpt);
+  return row.body ? firstImageFromBody(row.body) : null;
+}
+
+export function rowToPreviewPost(
+  row: { thumbSrc?: string | null } & V5000PostRow,
+  cat?: CatItem | null,
+): PreviewPost {
   const c = cat ?? getSiteCategory(row.categorySlug);
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt.replace(/<[^>]+>/g, '').trim(),
-    imageUrl: firstImageFromBody(row.body),
+    imageUrl: previewImageUrl(row),
     categorySlug: row.categorySlug,
     categoryName: c?.name ?? row.categorySlug,
     authorId: row.authorId,

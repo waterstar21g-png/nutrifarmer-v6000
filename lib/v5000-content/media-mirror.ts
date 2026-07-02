@@ -56,7 +56,7 @@ async function loadMirrorMap(): Promise<MirrorRecord> {
 export const getMediaMirrorMap = unstable_cache(
   loadMirrorMap,
   ['v5000-media-mirror-v1'],
-  { revalidate: 3600, tags: ['media-mirror'] },
+  { revalidate: 86400, tags: ['media-mirror'] },
 );
 
 /** 단일 URL → R2/CDN (없으면 CDN 경로 추론 → 원본) */

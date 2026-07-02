@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
-import { listPublishedByCategory } from '@/lib/v5000-content/posts';
-import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-posts';
+import { getSiteCategory } from '@/lib/v5000-content/public-posts';
+import { getCategoryPreviewPosts } from '@/lib/site-content';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ category: string }>;
@@ -28,11 +28,10 @@ export default async function MobileCategoryPage({ params }: Props) {
   const cat = getSiteCategory(category);
   if (!cat) notFound();
 
-  const { data: rows, loadFailed } = await safeFetchPosts(
-    () => listPublishedByCategory(category, 30),
+  const { data: posts, loadFailed } = await safeFetchPosts(
+    () => getCategoryPreviewPosts(category, 30),
     [],
   );
-  const posts = rows.map(row => rowToPreviewPost(row, cat));
 
   return (
     <>
