@@ -1,4 +1,4 @@
-import { listPublishedByCategory } from '@/lib/v5000-content/posts';
+import { getCachedPublishedByCategory } from '@/lib/v5000-content/post-list-cache';
 import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-posts';
 import { getThemeSlugs } from '@/lib/theme-map';
 import type { PreviewPost } from '@/lib/home-posts';
@@ -12,7 +12,7 @@ export async function listPostsByTheme(
   const batches = await Promise.all(
     slugs.map(async slug => {
       try {
-        return await listPublishedByCategory(slug, perSlug);
+        return await getCachedPublishedByCategory(slug, perSlug);
       } catch (err) {
         console.error('[v6000] theme posts fetch failed:', err);
         loadFailed = true;

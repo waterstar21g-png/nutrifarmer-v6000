@@ -6,7 +6,7 @@ import { listPostsByTheme } from '@/lib/theme-posts';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ key: string }>;

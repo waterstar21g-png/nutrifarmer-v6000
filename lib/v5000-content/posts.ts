@@ -87,8 +87,8 @@ export async function findPublishedPostWithAuthor(opts: {
   return rows[0] ?? null;
 }
 
-/** 목록·썸네일용 — 본문 앞부분만 (DB 전송량 절감) */
-export const PREVIEW_BODY_SLICE = 4096;
+/** 목록 행 — 본문 전송 없이 DB에서 썸네일 URL만 추출 */
+export type V5000PostListRow = V5000PostRow & { thumbSrc?: string | null };
 
 function previewListSelect() {
   return {
@@ -102,11 +102,17 @@ function previewListSelect() {
     publishedAt: v5000Posts.publishedAt,
     createdAt: v5000Posts.createdAt,
     updatedAt: v5000Posts.updatedAt,
-    body: sql<string>`substring(${v5000Posts.body} from 1 for ${PREVIEW_BODY_SLICE})`.as('body'),
+    body: sql<string>`''`.as('body'),
+    thumbSrc: sql<string | null>`(regexp_match(${v5000Posts.body}, '<img[^>]+src="([^"]+)"', 'i'))[1]`.as(
+      'thumb_src',
+    ),
   };
 }
 
-export async function listPublishedByCategory(categorySlug: string, limit = 100): Promise<V5000PostRow[]> {
+export async function listPublishedByCategory(
+  categorySlug: string,
+  limit = 100,
+): Promise<V5000PostListRow[]> {
   const db = getDb();
   const rows = await db
     .select(previewListSelect())
@@ -114,7 +120,7 @@ export async function listPublishedByCategory(categorySlug: string, limit = 100)
     .where(and(eq(v5000Posts.categorySlug, categorySlug), eq(v5000Posts.status, 'publish')))
     .orderBy(desc(v5000Posts.publishedAt), desc(v5000Posts.updatedAt))
     .limit(Math.min(limit, 100));
-  return rows as V5000PostRow[];
+  return rows as V5000PostListRow[];
 }
 
 export async function listPosts(opts: {
@@ -268,7 +274,7 @@ export async function countPublishedByCategory(categorySlug: string): Promise<nu
   return rows[0]?.count ?? 0;
 }
 
-export async function listLatestPublished(limit = 30): Promise<V5000PostRow[]> {
+export async function listLatestPublished(limit = 30): Promise<V5000PostListRow[]> {
   const db = getDb();
   const rows = await db
     .select(previewListSelect())
@@ -276,21 +282,21 @@ export async function listLatestPublished(limit = 30): Promise<V5000PostRow[]> {
     .where(eq(v5000Posts.status, 'publish'))
     .orderBy(desc(v5000Posts.publishedAt), desc(v5000Posts.updatedAt))
     .limit(Math.min(limit, 100));
-  return rows as V5000PostRow[];
+  return rows as V5000PostListRow[];
 }
 
 export async function listPublishedPaginated(
   categorySlug: string,
   page: number,
   perPage: number,
-): Promise<{ rows: V5000PostRow[]; total: number; totalPages: number }> {
+): Promise<{ rows: V5000PostListRow[]; total: number; totalPages: number }> {
   const db = getDb();
   const where = and(eq(v5000Posts.categorySlug, categorySlug), eq(v5000Posts.status, 'publish'));
   const offset = Math.max(0, (page - 1) * perPage);
 
   const [rows, countRows] = await Promise.all([
     db
-      .select()
+      .select(previewListSelect())
       .from(v5000Posts)
       .where(where)
       .orderBy(desc(v5000Posts.publishedAt), desc(v5000Posts.updatedAt))
@@ -301,13 +307,13 @@ export async function listPublishedPaginated(
 
   const total = countRows[0]?.count ?? 0;
   return {
-    rows,
+    rows: rows as V5000PostListRow[],
     total,
     totalPages: total === 0 ? 0 : Math.ceil(total / perPage),
   };
 }
 
-export async function searchPublishedPosts(search: string, limit = 12): Promise<V5000PostRow[]> {
+export async function searchPublishedPosts(search: string, limit = 12): Promise<V5000PostListRow[]> {
   const q = search.trim();
   if (!q) return [];
 
@@ -324,5 +330,5 @@ export async function searchPublishedPosts(search: string, limit = 12): Promise<
     )
     .orderBy(desc(v5000Posts.publishedAt), desc(v5000Posts.updatedAt))
     .limit(Math.min(limit, 100));
-  return rows as V5000PostRow[];
+  return rows as V5000PostListRow[];
 }

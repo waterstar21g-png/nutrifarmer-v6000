@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSession, withDatabase } from '@/lib/v5000-content/api';
 import { listCategories } from '@/lib/v5000-content/categories';
+import { invalidatePostPages } from '@/lib/v5000-content/post-list-cache';
 import { createPost, listPosts, listPublishedByCategory, toPostDto } from '@/lib/v5000-content/posts';
 import { postErrorMessage, validatePostInput } from '@/lib/v5000-content/validate';
 
@@ -91,6 +92,9 @@ export async function POST(req: NextRequest) {
       status: body.status ?? 'publish',
       authorId: session.userId,
     });
+    if (row.status === 'publish') {
+      invalidatePostPages(row.categorySlug, row.slug);
+    }
     return NextResponse.json({ ok: true, post: toPostDto(row) });
   });
 
