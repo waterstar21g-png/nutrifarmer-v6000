@@ -62,20 +62,19 @@ export const getMediaMirrorMap = unstable_cache(
 /** 단일 URL → R2/CDN (없으면 CDN 경로 추론 → 원본) */
 export async function resolveMediaUrl(source: string): Promise<string> {
   if (!source?.trim()) return '';
-  const norm = normalizeMediaUrl(source);
   const map = await getMediaMirrorMap();
-  const hit = map[norm];
-  if (hit) return hit;
-  return cdnUrlFromWp(norm) ?? source;
+  return resolveMediaUrlWithMap(source, map);
 }
 
-/** V5000 파일 프록시·WP uploads → CDN (동기 폴백) */
-export function resolveMediaUrlSync(source: string): string {
+/** 미러 맵 기반 URL 해석 — 목록 썸네일 배치 처리용 */
+export function resolveMediaUrlWithMap(source: string, map: MirrorRecord): string {
   if (!source?.trim()) return '';
   const trimmed = source.trim();
   const norm = normalizeMediaUrl(trimmed.startsWith('/') ? `https://local${trimmed}` : trimmed);
-  const cdn = process.env.NEXT_PUBLIC_CDN_URL?.trim().replace(/\/$/, '');
+  const hit = map[norm];
+  if (hit) return hit;
 
+  const cdn = process.env.NEXT_PUBLIC_CDN_URL?.trim().replace(/\/$/, '');
   const apiKey =
     trimmed.match(/^\/api\/v5000\/files\/(.+)$/i)?.[1] ??
     norm.match(/\/api\/v5000\/files\/(.+)$/i)?.[1];
@@ -88,18 +87,39 @@ export function resolveMediaUrlSync(source: string): string {
   return cdnUrlFromWp(norm) ?? source;
 }
 
-/** HTML 본문 내 WP 이미지 URL 일괄 치환 */
-export async function rewriteHtmlMediaUrls(html: string): Promise<string> {
-  if (!html?.includes('wp-content/uploads')) return html;
-  const map = await getMediaMirrorMap();
-  return html.replace(
-    /https?:\/\/[^"'\s>]+\/wp-content\/uploads\/[^"'\s>)]+/gi,
-    match => {
+/** V5000 파일 프록시·WP uploads → CDN (동기 폴백) */
+export function resolveMediaUrlSync(source: string): string {
+  return resolveMediaUrlWithMap(source, {});
+}
+
+const WP_UPLOADS_HTML_RE = /https?:\/\/[^"'\s>]+\/wp-content\/uploads\/[^"'\s>)]+/gi;
+const API_FILES_HTML_RE = /(?:https?:\/\/[^"'\s>]+)?\/api\/v5000\/files\/[^"'\s>)]+/gi;
+
+function rewriteHtmlMediaUrlsWithMap(html: string, map: MirrorRecord): string {
+  if (!html) return html;
+  let out = html;
+  if (out.includes('wp-content/uploads')) {
+    out = out.replace(WP_UPLOADS_HTML_RE, match => {
       const norm = normalizeMediaUrl(match);
       return map[norm] ?? cdnUrlFromWp(norm) ?? match;
-    },
-  );
+    });
+  }
+  if (out.includes('/api/v5000/files/')) {
+    out = out.replace(API_FILES_HTML_RE, match => resolveMediaUrlWithMap(match, map));
+  }
+  return out;
 }
+
+/** HTML 본문 내 WP·프록시 이미지 URL 일괄 치환 */
+export async function rewriteHtmlMediaUrls(html: string): Promise<string> {
+  if (!html?.includes('wp-content/uploads') && !html?.includes('/api/v5000/files/')) {
+    return html;
+  }
+  const map = await getMediaMirrorMap();
+  return rewriteHtmlMediaUrlsWithMap(html, map);
+}
+
+export { rewriteHtmlMediaUrlsWithMap };
 
 /** 여러 URL 한 번에 해석 */
 export async function resolveMediaUrls(sources: string[]): Promise<Map<string, string>> {
@@ -107,8 +127,7 @@ export async function resolveMediaUrls(sources: string[]): Promise<Map<string, s
   const out = new Map<string, string>();
   for (const src of sources) {
     if (!src) continue;
-    const norm = normalizeMediaUrl(src);
-    out.set(src, map[norm] ?? cdnUrlFromWp(norm) ?? src);
+    out.set(src, resolveMediaUrlWithMap(src, map));
   }
   return out;
 }

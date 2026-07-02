@@ -87,8 +87,8 @@ export async function findPublishedPostWithAuthor(opts: {
   return rows[0] ?? null;
 }
 
-/** 목록·썸네일용 — 본문 앞부분만 (DB 전송량 절감) */
-export const PREVIEW_BODY_SLICE = 4096;
+/** 목록·썸네일용 — 본문 앞부분만 (DB 전송량 절감, 첫 img 태그 포함 여유) */
+export const PREVIEW_BODY_SLICE = 16384;
 
 function previewListSelect() {
   return {

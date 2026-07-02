@@ -7,7 +7,7 @@ import {
 import type { V5000PostRow } from '@/lib/v5000-content/schema';
 import {
   getSiteCategory,
-  rowToPreviewPost,
+  rowsToPreviewPosts,
   firstImageFromBody,
 } from '@/lib/v5000-content/public-posts';
 import { rewriteHtmlMediaUrls } from '@/lib/v5000-content/media-mirror';
@@ -99,7 +99,7 @@ export async function getPreviewPostsBySlugs(
     unique.map(async slug => {
       const rows = await listPublishedByCategory(slug, perPage).catch(() => []);
       const cat = getSiteCategory(slug);
-      const previews = rows.map(row => rowToPreviewPost(row, cat));
+      const previews = await rowsToPreviewPosts(rows, cat);
       return [slug, previews] as const;
     }),
   );
@@ -108,12 +108,12 @@ export async function getPreviewPostsBySlugs(
 
 export async function getLatestPreviewPosts(perPage = 6): Promise<PreviewPost[]> {
   const rows = await listLatestPublished(perPage).catch(() => []);
-  return rows.map(row => rowToPreviewPost(row));
+  return rowsToPreviewPosts(rows);
 }
 
 export async function searchPosts(query: string, limit = 12): Promise<PreviewPost[]> {
   const rows = await searchPublishedPosts(query, limit).catch(() => []);
-  return rows.map(row => rowToPreviewPost(row));
+  return rowsToPreviewPosts(rows);
 }
 
 export function galleryItemToGrid(item: GalleryItem) {

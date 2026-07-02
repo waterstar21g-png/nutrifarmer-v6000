@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { POSTS_LOAD_ERROR_MSG, safeFetchPosts } from '@/lib/v5000-content/fetch-safe';
 import { listPublishedByCategory } from '@/lib/v5000-content/posts';
-import { getSiteCategory, rowToPreviewPost } from '@/lib/v5000-content/public-posts';
+import { getSiteCategory, rowsToPreviewPosts } from '@/lib/v5000-content/public-posts';
 import { MobilePostCard } from '@/components/m6/MobilePostCard';
 import { MobileCatScroll } from '@/components/m6/MobileCatScroll';
 
@@ -32,7 +32,7 @@ export default async function MobileCategoryPage({ params }: Props) {
     () => listPublishedByCategory(category, 30),
     [],
   );
-  const posts = rows.map(row => rowToPreviewPost(row, cat));
+  const posts = await rowsToPreviewPosts(rows, cat);
 
   return (
     <>

@@ -1,7 +1,12 @@
 import { SHOWCASE_CATS, ABOUT_ITEMS, FAMILY_ITEMS, type CatItem } from '@/lib/site-data';
 import type { PreviewPost } from '@/lib/home-posts';
 import { firstImageUrlFromHtml } from '@/lib/write-featured-image';
-import { resolveMediaUrlSync } from './media-mirror';
+import {
+  getMediaMirrorMap,
+  resolveMediaUrlSync,
+  resolveMediaUrlWithMap,
+  rewriteHtmlMediaUrlsWithMap,
+} from './media-mirror';
 import type { V5000PostRow } from './schema';
 
 const ALL_CATS: CatItem[] = [...SHOWCASE_CATS, ...ABOUT_ITEMS, ...FAMILY_ITEMS];
@@ -15,19 +20,38 @@ export function firstImageFromBody(html: string): string | null {
   return src ? resolveMediaUrlSync(src) : null;
 }
 
-export function rowToPreviewPost(row: V5000PostRow, cat?: CatItem | null): PreviewPost {
-  const c = cat ?? getSiteCategory(row.categorySlug);
+function previewPostFromRow(
+  row: V5000PostRow,
+  cat: CatItem | null,
+  imageUrl: string | null,
+): PreviewPost {
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt.replace(/<[^>]+>/g, '').trim(),
-    imageUrl: firstImageFromBody(row.body),
+    imageUrl,
     categorySlug: row.categorySlug,
-    categoryName: c?.name ?? row.categorySlug,
+    categoryName: cat?.name ?? row.categorySlug,
     authorId: row.authorId,
     pid: row.id,
   };
+}
+
+/** 목록·검색 썸네일 — 미러 DB로 WP·프록시 URL을 CDN으로 일괄 치환 */
+export async function rowsToPreviewPosts(
+  rows: V5000PostRow[],
+  cat?: CatItem | null,
+): Promise<PreviewPost[]> {
+  if (rows.length === 0) return [];
+  const map = await getMediaMirrorMap();
+  return rows.map(row => {
+    const c = cat ?? getSiteCategory(row.categorySlug);
+    const rewritten = rewriteHtmlMediaUrlsWithMap(row.body, map);
+    const src = firstImageUrlFromHtml(rewritten);
+    const imageUrl = src ? resolveMediaUrlWithMap(src, map) : null;
+    return previewPostFromRow(row, c, imageUrl);
+  });
 }
 
 export function rowToSidebarPost(row: V5000PostRow) {
