@@ -24,7 +24,8 @@ export interface ProductScoutResult {
   weeklySales: number;
   lowestPrices: PriceListing[];
   viewTrend: ViewTrendPoint[];
-  source: 'itemscout' | 'demo';
+  source: 'naver' | 'itemscout' | 'demo';
+  priceSource?: 'naver' | 'demo';
   analyzedAt: string;
 }
 

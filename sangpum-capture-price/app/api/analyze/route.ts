@@ -103,13 +103,13 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'scout_failed';
     console.error('[api/analyze] itemscout', msg);
-    const isApi = msg.startsWith('itemscout_api:');
+    const isApi = msg.startsWith('itemscout_api:') || msg.startsWith('naver_api:');
     return NextResponse.json(
       {
         ok: false,
-        code: isApi ? 'itemscout_api_error' : 'scout_failed',
+        code: isApi ? 'market_api_error' : 'scout_failed',
         message: isApi
-          ? '아이템스카우트 API 호출에 실패했습니다. API 키와 엔드포인트를 확인해 주세요.'
+          ? '시장 데이터 조회에 실패했습니다. API 키를 확인해 주세요.'
           : '상품 분석에 실패했습니다.',
       },
       { status: 502 },

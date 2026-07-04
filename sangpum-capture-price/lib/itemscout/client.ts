@@ -49,6 +49,32 @@ function buildDemoPrices(keyword: string, seed: number): PriceListing[] {
   }));
 }
 
+import { fetchNaverLowestPrices } from '@/lib/naver-shopping';
+
+/** 키워드 기반 데모 + 네이버 쇼핑 최저가(키 있을 때) */
+export async function buildMarketResult(
+  keyword: string,
+  productName: string,
+  category?: string,
+): Promise<ProductScoutResult> {
+  const base = buildDemoScoutResult(keyword, productName, category);
+  try {
+    const naver = await fetchNaverLowestPrices(keyword);
+    if (naver.prices.length) {
+      return {
+        ...base,
+        lowestPrices: naver.prices,
+        competingProducts: naver.totalProducts,
+        source: 'naver',
+        priceSource: 'naver',
+      };
+    }
+  } catch (e) {
+    console.warn('[market] naver', e instanceof Error ? e.message : e);
+  }
+  return { ...base, priceSource: 'demo' };
+}
+
 /** API 키 없을 때 키워드 기반 데모 데이터 */
 export function buildDemoScoutResult(
   keyword: string,
@@ -228,10 +254,12 @@ export interface FetchKeywordAnalysisOptions {
 export async function fetchKeywordAnalysis(
   opts: FetchKeywordAnalysisOptions,
 ): Promise<ProductScoutResult> {
-  const apiKey = process.env.ITEMSCOUT_API_KEY?.trim();
-  if (!apiKey) {
-    return buildDemoScoutResult(opts.keyword, opts.productName, opts.category);
+  const itemscoutKey = process.env.ITEMSCOUT_API_KEY?.trim();
+  if (!itemscoutKey) {
+    return buildMarketResult(opts.keyword, opts.productName, opts.category);
   }
+
+  const apiKey = itemscoutKey;
 
   const base = (process.env.ITEMSCOUT_API_BASE_URL?.trim() || DEFAULT_BASE).replace(/\/$/, '');
   const path = process.env.ITEMSCOUT_KEYWORD_PATH?.trim() || '/api/open/v1/keyword';

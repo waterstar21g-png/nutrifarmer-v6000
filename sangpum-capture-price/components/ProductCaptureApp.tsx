@@ -194,7 +194,7 @@ export function ProductCaptureApp() {
           <section className="result">
             <div className="result__meta">
               <span className={`badge badge--${result.source}`}>
-                {result.source === 'itemscout' ? '아이템스카우트' : '데모 데이터'}
+                {result.source === 'naver' ? '네이버 쇼핑' : result.source === 'itemscout' ? '아이템스카우트' : '데모 데이터'}
               </span>
               {visionInfo && (
                 <span className="result__confidence">인식 신뢰도 {Math.round(visionInfo.confidence * 100)}%</span>
@@ -258,10 +258,10 @@ export function ProductCaptureApp() {
               )}
             </article>
 
-            {result.source === 'demo' && (
+            {(result.source === 'demo' || result.priceSource === 'demo') && (
               <p className="notice">
-                ITEMSCOUT_API_KEY가 설정되지 않아 데모 데이터를 표시합니다.
-                B2B API 키 발급 후 실제 아이템스카우트 데이터가 연동됩니다.
+                NAVER_CLIENT_ID/SECRET 미설정 시 최저가·상품수는 데모입니다.
+                <a href="https://developers.naver.com/apps/#/list" target="_blank" rel="noopener noreferrer"> 네이버 개발자센터</a>에서 무료 발급 후 .env.local에 추가하세요.
               </p>
             )}
 
@@ -281,7 +281,7 @@ export function ProductCaptureApp() {
       </main>
 
       <footer className="app-footer">
-        <p>데이터 출처: <a href="https://itemscout.io" target="_blank" rel="noopener noreferrer">아이템스카우트</a></p>
+        <p>최저가 출처: 네이버 쇼핑 · 기타 지표: 아이템스카우트(선택)</p>
       </footer>
     </div>
   );
