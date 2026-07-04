@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { SHOWCASE_CATS } from '@/lib/site-data';
 
 const RESERVED = new Set([
-  'categories', 'theme', 'upload', 'photo', 'text', 'done', 'write', 'login', 'api',
+  'categories', 'theme', 'upload', 'photo', 'text', 'done', 'write', 'login', 'api', 'scout',
 ]);
 
 export function MobileBottomNav({ loggedIn = false }: { loggedIn?: boolean }) {
@@ -17,6 +17,7 @@ export function MobileBottomNav({ loggedIn = false }: { loggedIn?: boolean }) {
   const isTheme = pathname.startsWith('/theme');
   const isUpload =
     pathname === '/upload' || pathname.startsWith('/photo') || pathname.startsWith('/done');
+  const isScout = pathname.startsWith('/scout');
   const isWrite = pathname === '/write' || pathname.startsWith('/text');
   const isAccount = pathname.startsWith('/login');
 
@@ -28,11 +29,12 @@ export function MobileBottomNav({ loggedIn = false }: { loggedIn?: boolean }) {
   );
 
   return (
-    <nav className="m6-bottom-nav m6-bottom-nav--6" aria-label="모바일 메인 메뉴">
+    <nav className="m6-bottom-nav m6-bottom-nav--7" aria-label="모바일 메인 메뉴">
       {navLink('/', isHome, '🏠', '홈')}
       {navLink('/categories', isCategories, '📂', '카테고리')}
+      {navLink('/scout', isScout, '🔍', '상품분석')}
       {navLink('/theme', isTheme, '🎨', '테마')}
-      {navLink('/upload', isUpload, '📷', '사진올리기')}
+      {navLink('/upload', isUpload, '📷', '사진')}
       {navLink('/write', isWrite, '✍️', '글쓰기')}
       <a href="/login" className={`m6-bottom-nav__item${isAccount ? ' is-active' : ''}`}>
         <span className="m6-bottom-nav__icon" aria-hidden>{loggedIn ? '✓' : '👤'}</span>
